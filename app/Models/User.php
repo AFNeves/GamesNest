@@ -2,58 +2,93 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use App\Casts\Address;
 
-// Added to define Eloquent relationships.
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable;
 
-    // Don't add create and update timestamps in database.
-    public $timestamps  = false;
+    public $timestamps = false;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'username',
         'email',
         'password',
+        'profile_picture',
+        'preferred_address'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'email_verified_at' => 'datetime',
+        'preferred_address' => Address::class
     ];
 
-    /**
-     * Get the cards for a user.
-     */
-    public function cards(): HasMany
+    public function getFullNameAttribute()
     {
-        return $this->hasMany(Card::class);
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function lastestOrder(): HasOne
+    {
+        return $this->orders()->one()->latestOfMany(Order::class, 'user_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'user_id');
+    }
+
+    public function paymentMethods(): HasMany
+    {
+        return $this->hasMany(PaymentMethod::class, 'user_id');
+    }
+
+    public function shoppingCart(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'shopping_cart', 'user_id', 'product_id')->withPivot('quantity');
+    }
+
+    public function wishlist(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'wishlist', 'user_id', 'product_id');
+    }
+
+    public function notifications(): BelongsToMany
+    {
+        return $this->belongsToMany(Notification::class, 'users_notified', 'user_id', 'notification_id');
+    }
+
+    public function productKeys(): HasManyThrough
+    {
+        return $this->hasManyThrough(ProductKey::class, Order::class, 'user_id', 'order_id');
+    }
+
+    public function transactions(): HasManyThrough
+    {
+        return $this->hasManyThrough(Transaction::class, Order::class, 'user_id', 'order_id');
     }
 }
