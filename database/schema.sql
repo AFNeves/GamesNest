@@ -122,6 +122,7 @@ CREATE TABLE discounts (
     FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE
 );
 
+
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL CONSTRAINT product_title_uk UNIQUE,
@@ -229,8 +230,8 @@ BEGIN
     IF TG_OP = 'INSERT' THEN
         NEW.tsvectors = (
             setweight(to_tsvector('english', NEW.title), 'A') ||
-            setweight(to_tsvector('english', NEW.region), 'B') ||
-            setweight(to_tsvector('english', NEW.platform), 'C') ||
+            setweight(to_tsvector('english', NEW.region::text), 'B') ||
+            setweight(to_tsvector('english', NEW.platform::text), 'C') ||
             setweight(to_tsvector('english', NEW.description), 'D')
         );
     END IF;
@@ -239,8 +240,8 @@ BEGIN
             OR NEW.region <> OLD.region OR NEW.platform <> OLD.platform) THEN
             NEW.tsvectors = (
                 setweight(to_tsvector('english', NEW.title), 'A') ||
-                setweight(to_tsvector('english', NEW.region), 'B') ||
-                setweight(to_tsvector('english', NEW.platform), 'C') ||
+                setweight(to_tsvector('english', NEW.region::text), 'B') ||
+                setweight(to_tsvector('english', NEW.platform::text), 'C') ||
                 setweight(to_tsvector('english', NEW.description), 'D')
             );
         END IF;
@@ -319,3 +320,8 @@ CREATE TRIGGER trigger_ensure_cart_stock
     FOR EACH ROW
 EXECUTE FUNCTION ensure_cart_stock();
 
+INSERT INTO users(first_name, last_name, username, email, password, profile_picture, preferred_address, is_admin)
+VALUES ('Sir', 'Admin', 'admin1', 'admin@example.com', '1234', 'default.png', NULL,TRUE);
+
+INSERT INTO products(title,description, images, type, platform, region, price, rating, visibility)
+VALUES ('Fifa 25 Steam Europe', 'The Ultimate EA Football game experience', '', 'Game','Steam', 'Europe',49.99, 4.2, TRUE);

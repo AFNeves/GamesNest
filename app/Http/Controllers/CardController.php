@@ -39,6 +39,7 @@ class CardController extends Controller
             return redirect('/login');
 
         } else {
+
             // The user is logged in.
 
             // Get cards for user ordered by id.
