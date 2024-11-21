@@ -6,8 +6,10 @@ use App\Enums\Region;
 use App\Enums\Platform;
 use App\Enums\ProductType;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
