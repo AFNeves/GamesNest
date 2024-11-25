@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\KeyController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -11,6 +13,8 @@ use App\Http\Controllers\Auth\RegisterController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
+|
+|
 |
 | Here is where you can register web routes for your application. These
 | routes are loaded by the RouteServiceProvider and all of them will
@@ -37,9 +41,23 @@ Route::controller(RegisterController::class)->group(function () {
 
 //Profile
 Route::controller(ProfileController::class)->group(function () {
-    Route::get('/profile', 'show')->name('profile');
+    Route::get('/profile/{id}', 'show')->name('profile');
+    Route::get('/profile/{id}/editprofile', 'edit_profile')->name('profile.edit');
+    Route::post('/profile/{id}/editprofile', 'update_profile')->name('profile.update');
 });
 
+//Orders
+Route::controller(OrderController::class)->group(function () {
+    Route::get('/orders/{id}', 'list')->name('ordershistory');
+    Route::get('/order/{id}/details', 'details')->name('orderdetails');
+});
+
+//Keys
+Route::controller(KeyController::class)->group(function () {
+    Route::get('/keys/{id}', 'list')->name('keysiventory');
+});
+
+//Products
 Route::controller(ProductController::class)->group(function () {
     Route::get('/products/{id}', 'show');
 });

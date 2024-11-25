@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
         $path = base_path('database/schema.sql');
         $sql = file_get_contents($path);
         DB::unprepared($sql);
