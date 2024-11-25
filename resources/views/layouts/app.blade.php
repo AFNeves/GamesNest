@@ -58,7 +58,7 @@
 
                 <h1><a href="{{ url('/cards') }}">GamesNest</a></h1>
                 @if (Auth::check())
-                    <a class="button" href="{{ url('/logout') }}"> Logout </a> <a href="/profile">{{ Auth::user()->name }}</a> <!-- toFix should be the username -->
+                    <a class="button" href="{{ url('/logout') }}"> Logout </a> <a href="/profile">{{ Auth::user()->username }}</a> <!-- toFix should be the username -->
                 @endif
                 <!--
                     toFix
