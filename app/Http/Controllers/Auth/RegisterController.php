@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
-use Illuminate\View\View;
-
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
     /**
-     * Display a login form.
+     * Shows the registration form.
      */
     public function showRegistrationForm(): View
     {
@@ -23,26 +22,48 @@ class RegisterController extends Controller
     }
 
     /**
-     * Register a new user.
+     * Handle the user registration.
      */
-    public function register(Request $request)
+    public function register(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:250',
-            'email' => 'required|email|max:250|unique:users',
-            'password' => 'required|min:8|confirmed'
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'username' => 'required|string|min:5|max:20|unique:users,username',
+            'email' => 'required|string|max:255|email|unique:users,email',
+            'password' => 'required|string|max:255|confirmed',
+        ], [
+            'first_name.required' => 'Oops! You forgot your first name.',
+            'last_name.required' => 'Hey, we need your last name too!',
+            'username.required' => 'Don\'t be shy, pick a cool username.',
+            'email.required' => 'We need your email to send you awesome stuff.',
+            'password.required' => 'Your password cannot be empty. Please provide one!',
+            'first_name.max' => 'Your first name is too long. It can\'t be more than 255 characters. Are you royalty?',
+            'last_name.max' => 'Your last name is too long. It can\'t be more than 255 characters. That\'s quite a mouthful!',
+            'username.min' => 'Your username is too short. It needs to be at least 5 characters long. Short and sweet doesn\'t work here!',
+            'username.max' => 'Your username is too long. It can\'t be more than 20 characters. Keep it snappy!',
+            'email.max' => 'Your email is too long. It can\'t be more than 255 characters. Keep it concise!',
+            'password.max' => 'Your password is too long. It can\'t be more than 255 characters. No need for an essay!',
+            'username.unique' => 'This cool username is already taken. Try another one!',
+            'email.unique' => 'This email is already registered. Maybe try logging in?',
+            'email.email' => 'Hmm, that doesn\'t look like a valid email.',
+            'password.confirmed' => 'Passwords don\'t match. Double-check and try again.',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        $credentials = $request->only('email', 'password');
-        Auth::attempt($credentials);
+        $data = $request->only('first_name', 'last_name', 'username', 'email');
+        $data['password'] = Hash::make($request->password);
+
+        UserController::storeDirect($data);
+
+        Auth::attempt(['email' => $data['email'], 'password' => $data['password']]);
+
         $request->session()->regenerate();
-        return redirect()->route('cards')
-            ->withSuccess('You have successfully registered & logged in!');
+
+        return redirect()->route('login')
+            ->with('success', 'Registration successful. Please log in.');
     }
 }
