@@ -28,16 +28,31 @@ Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
     Route::post('/register', 'register');
 });
+// Protected Routes
+Route::middleware('auth')->group(function () {
+    // Profile
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('/profile/{id}', 'show')->name('profile');
+        Route::get('/profile/{id}/editprofile', 'edit_profile')->name('profile.edit');
+        Route::put('/profile/{id}/editprofile', 'update_profile')->name('profile.update');
+    });
 
-//Profile
-Route::controller(ProfileController::class)->group(function () {
-    Route::get('/profile', 'show')->name('profile');
+    // Orders
+    Route::controller(OrderController::class)->group(function () {
+        Route::get('/orders/{id}', 'list')->name('ordershistory');
+        Route::get('/order/{id}/details', 'details')->name('orderdetails');
+    });
+
+    // Keys
+    Route::controller(KeyController::class)->group(function () {
+        Route::get('/keys/{id}', 'list')->name('keysiventory');
+    });
+
+    // Products
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('/products/{id}', 'show');
+    });
 });
-
-Route::controller(ProductController::class)->group(function () {
-    Route::get('/products/{id}', 'show');
-});
-
 // Shopping Cart Routes
 Route::controller(ShopCartController::class)->group(function () {
     Route::get('/cart', 'index')->name('cart.index');
