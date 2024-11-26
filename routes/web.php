@@ -6,7 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopCartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\KeyController;
-use App\Http\Controllers\ShopCartController;
+use App\Http\Controllers\CheckoutController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -46,3 +46,8 @@ Route::controller(ShopCartController::class)->group(function () {
     Route::post('/cart/add/{product}', 'addToCart')->name('cart.add'); 
 });
 //Route::post('/cart/add/{product}', [ShopCartController::class, 'addToCart'])->name('cart.add')->middleware('auth');
+// Checkout Routes
+Route::controller(CheckoutController::class)->group(function () {
+    Route::get('/checkout', 'show')->name('checkout.show');
+    Route::post('/checkout/process', 'process')->name('checkout.process');
+});

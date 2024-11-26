@@ -44,7 +44,7 @@
                 <h3>Total: €{{ $cartItems->sum(function($item) { 
                     return $item->final_price * $item->quantity; 
                 }) }}</h3>
-                <form action="{{ route('checkout.process') }}" method="POST">
+                <form action="{{ route('checkout.show') }}" method="POST">
                     @csrf
                     <button type="submit">Proceed to Checkout</button>
                 </form>
