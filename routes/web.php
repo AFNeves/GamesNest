@@ -17,17 +17,17 @@ Route::get('/', function () {
 });
 
 // Authentication
-
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
-    Route::post('/login', 'authenticate');
+    Route::post('/login', 'authenticate')->name('login-action');
     Route::get('/logout', 'logout')->name('logout');
 });
 
 Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
-    Route::post('/register', 'register');
+    Route::post('/register', 'register')->name('register-action');
 });
+
 // Protected Routes
 Route::middleware('auth')->group(function () {
     // Profile
@@ -48,9 +48,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/keys/{id}', 'list')->name('keysiventory');
     });
 
-
+    // Products
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('/product/{id}', 'show')->name('product');
+        Route::post('/search', 'search')->name('search');
+        Route::get('/search', 'display')->name('display_search');
+    });
 });
-// Products 
+// Products
 Route::controller(ProductController::class)->group(function () {
     Route::get('/products/{id}', 'show')->name('products.show'); // Add name to route
 });
@@ -59,7 +64,7 @@ Route::controller(ShopCartController::class)->group(function () {
     Route::get('/cart', 'index')->name('cart.index');
     Route::patch('/cart/{product}', 'update')->name('cart.update');
     Route::delete('/cart/{product}', 'remove')->name('cart.remove');
-    Route::post('/cart/add/{product}', 'addToCart')->name('cart.add'); 
+    Route::post('/cart/add/{product}', 'addToCart')->name('cart.add');
 });
 //Route::post('/cart/add/{product}', [ShopCartController::class, 'addToCart'])->name('cart.add')->middleware('auth');
 // Checkout Routes

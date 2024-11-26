@@ -67,7 +67,7 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL CONSTRAINT auth_username_uk UNIQUE,
     email VARCHAR(255) NOT NULL CONSTRAINT auth_email_uk UNIQUE,
     password VARCHAR(255) NOT NULL,
-    profile_picture TEXT NOT NULL DEFAULT 'default.jpg',
+    profile_picture TEXT NOT NULL DEFAULT 'default.png',
     preferred_address address,
     remember_token VARCHAR(255),
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,

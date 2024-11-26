@@ -57,12 +57,9 @@ class RegisterController extends Controller
         $data = $request->only('first_name', 'last_name', 'username', 'email');
         $data['password'] = Hash::make($request->password);
 
-        UserController::storeDirect($data);
+        $user = UserController::storeDirect($data);
 
-        Auth::attempt([
-            'email' => $request->email,         // Use raw email from request
-            'password' => $request->password    // Use raw password from request
-        ]);
+        Auth::login($user);
 
         $request->session()->regenerate();
 

@@ -8,98 +8,73 @@
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <!-- Title -->
+        <title>{{ config('app.name', 'GamesNest') }}</title>
 
         <!-- Styles -->
-        <link href="{{ url('css/milligram.min.css') }}" rel="stylesheet">
-        <link href="{{ url('css/app.css') }}" rel="stylesheet">
+        <link href="{{ url('css/tailwind.css') }}" rel="stylesheet">
 
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
 
-        <!-- toFix Temporary just to make it look less bad -->
-        <style>
-            #search_bar{
-                color: #888;
-                margin : 1px auto;
-                width: 25%;
-            }
-
-            footer {
-                background-color: #888;
-                color: #fff;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 10;
-            }
-
-            footer nav a {
-                margin: 0 150px;
-                text-decoration: none;
-                color: #fff;
-                font-size: 14px;
-            }
-        </style>
-
-        <script type="text/javascript">
-            // Fix for Firefox autofocus CSS bug
-            // See: http://stackoverflow.com/questions/18943276/html-5-autofocus-messes-up-css-loading/18945951#18945951
-        </script>
-        <script type="text/javascript" src={{ url('js/app.js') }} defer>
-        </script>
+        <!-- Scripts -->
+        <script type="text/javascript"></script>
+        <script type="text/javascript" src={{ url('js/app.js') }} defer></script>
     </head>
     <body>
-        <main>
-            <header>
-
-                <h1><a href="{{ url('/cards') }}">GamesNest</a></h1>
-                @if (Auth::check())
-                    <a class="button" href="{{ url('/cart') }}"> Shopping Cart </a>
-                    <a class="button" href="{{ url('/logout') }}"> Logout </a> <a href="/profile">{{ Auth::user()->username }}</a> <!-- toFix should be the username -->
-                @endif
-                <!--
-                    toFix
-                    action and value need to be changed in order to work fo shure
-                -->
-                <a class="forms">
-                    <form id="search_bar" action="" method="GET" class="search_form">
-                        <input
-                                type="text"
-                                name="query"
-                                placeholder="Search..."
-                                class="search-input"
-                                value=""
-                        />
-                    </form>
+        <!-- Header -->
+        <header>
+            <div class="flex flex-wrap items-center mx-auto min-h-14 my-2.5 {{ !View::hasSection('search-bar') && !View::hasSection('header-context') ? 'justify-center' : 'justify-between' }}">
+                <!-- Logo -->
+                <a href="/" class="flex items-center">
+                    <img src="{{ asset('images/games-nest-icon.png') }}" class="w-28 h-28" alt="GamesNest Logo" />
+                    <span class="font-jaro text-4xl self-center whitespace-nowrap">GamesNest</span>
                 </a>
-            </header>
-            <section id="content">
-                @if(session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
+
+                @hasSection('search-bar')
+                    <!-- Search Bar -->
+                    @yield('search-bar')
                 @endif
 
-                @if(session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
+                @hasSection('header-context')
+                    <!-- Login / User ID -->
+                    @yield('header-context')
                 @endif
-                @yield('content')
-            </section>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            @yield('content')
         </main>
+
+        <!-- Footer -->
         <footer>
-            <nav>
-                <!-- We will need to put the references of the static pages when they are done-->
-                <a href="">Contact Us</a>
-                <a href="">About</a>
-                <a href="">FAQ</a>
-                <a href="">Services</a>
-            </nav>
+            <div class="flex flex-wrap items-center justify-between py-4 text-sm">
+                <div class="flex items-center">
+                    <img src="{{ asset('images/games-nest-icon.png') }}" class="w-16 h-16" alt="GamesNest Logo" />
+                    <span class="font-jaro text-2xl self-center whitespace-nowrap">GamesNest</span>
+                </div>
+
+                <ul class="flex flex-wrap items-center">
+                    <li>
+                        <span class="gn-footer-li">About</span>
+                    </li>
+                    <li>
+                        <span class="gn-footer-li">Services</span>
+                    </li>
+                    <li>
+                        <span class="gn-footer-li">FAQ</span>
+                    </li>
+                    <li>
+                        <span class="gn-footer-li">Contact</span>
+                    </li>
+                </ul>
+
+                <span class="mr-3">© 2024 GamesNest™</span>
+            </div>
         </footer>
     </body>
 </html>

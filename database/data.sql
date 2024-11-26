@@ -3,9 +3,9 @@
 -----------------------------------------
 
 INSERT INTO users(first_name, last_name, username, email, password, profile_picture, preferred_address, is_admin)
-VALUES ('Sir', 'Admin', 'adminUno', 'admin@example.com', '1234', 'images/default.png', row('Rua Mouzinho da Silveira, nº 13', 'Porto', 'Porto', '4050-430', 'Portugal', '910000000'),TRUE),
-       ('Not', 'Admin', 'sadUser1', 'user@example.com', '1234', 'images/default.png', NULL,FALSE),
-       ('André','Pinto', 'apinto', 'up202108856@fe.up.pt','1234','images/default.png', NULL, TRUE);
+VALUES ('Sir', 'Admin', 'adminUno', 'admin@example.com', '$2y$10$HfzIhGCCaxqyaIdGgjARSuOKAcm1Uy82YfLuNaajn6JrjLWy9Sj/W', 'images/default.png', row('Rua Mouzinho da Silveira, nº 13', 'Porto', 'Porto', '4050-430', 'Portugal', '910000000'),TRUE),
+       ('Not', 'Admin', 'sadUser1', 'user@example.com', '$2y$10$HfzIhGCCaxqyaIdGgjARSuOKAcm1Uy82YfLuNaajn6JrjLWy9Sj/W', 'images/default.png', NULL,FALSE),
+       ('André','Pinto', 'apinto', 'up202108856@fe.up.pt','$2y$10$HfzIhGCCaxqyaIdGgjARSuOKAcm1Uy82YfLuNaajn6JrjLWy9Sj/W','images/default.png', NULL, TRUE);
 
 INSERT INTO products(title,description, images, type, platform, region, price, rating, visibility)
 VALUES ('Fifa 25 Steam Europe', 'The Ultimate EA Football game experience', '', 'Game','Steam', 'Europe',49.99, 4.2, TRUE),
