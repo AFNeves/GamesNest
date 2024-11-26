@@ -26,8 +26,6 @@
             </form>
         @endif
 
-        <a class="buttom">Add to cart old</a>
-        <a class="buttom">Add to favourites</a>
     </section>
 
     @if(session('success'))
