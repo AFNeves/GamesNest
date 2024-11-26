@@ -5,6 +5,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\KeyController;
+use App\Http\Controllers\ShopCartController;
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
@@ -14,6 +16,7 @@ Route::get('/', function () {
 });
 
 // Authentication
+
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
     Route::post('/login', 'authenticate');
