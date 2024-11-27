@@ -8,14 +8,6 @@ use Illuminate\Support\Facades\Auth;
 class UserPolicy
 {
     /**
-     * Store a new user directly with the provided data.
-     */
-    public function storeDirect(User $user): bool
-    {
-        return true;
-    }
-
-    /**
      * Shows the user management page.
      */
     public function manage(User $user): bool

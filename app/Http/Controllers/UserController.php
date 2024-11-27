@@ -14,14 +14,6 @@ use App\Models\User;
 class UserController extends Controller
 {
     /**
-     * Store a new user directly with the provided data.
-     */
-    public function storeDirect(array $data): User
-    {
-        return User::create($data);
-    }
-
-    /**
      * Shows the user management page.
      */
     public function manage(): View|JsonResponse
