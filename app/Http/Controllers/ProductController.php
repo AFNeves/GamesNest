@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-
-
-
-use Illuminate\View\View;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -64,12 +60,19 @@ class ProductController extends Controller
     /**
      * Shows the product page with the given id.
      */
-    public function show(int $id): View
+    public function show(int $id): View|JsonResponse
     {
-        // Remove authorization check for viewing products
-        $product = Product::findOrFail($id);
-        
-        return view('pages.products', ['product' => $product]);
+        try {
+            $product = Product::findOrFail($id);
+
+            $this->authorize('search', $product);
+
+            return view('pages.product', ['product' => $product]);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
     }
 
     /**

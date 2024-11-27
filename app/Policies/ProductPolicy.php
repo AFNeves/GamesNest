@@ -3,10 +3,12 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Product;
 
 class ProductPolicy
 {
+    /**
+     * Shows the first 10 products using pagination.
+     */
     public function index(User $user): bool
     {
         return true;
@@ -37,7 +39,7 @@ class ProductPolicy
     }
 
     /**
-     * Displays the search results.
+     * Shows the results of full text search.
      */
     public function display(User $user): bool
     {
@@ -47,7 +49,7 @@ class ProductPolicy
     /**
      * Shows the create product widget.
      */
-    public function create(User $user, Product $product): bool
+    public function create(User $user): bool
     {
         return $user->is_admin;
     }
@@ -55,7 +57,7 @@ class ProductPolicy
     /**
      * Shows the edit product widget.
      */
-    public function edit(User $user, Product $product): bool
+    public function edit(User $user): bool
     {
         return $user->is_admin;
     }
@@ -63,7 +65,7 @@ class ProductPolicy
     /**
      * Inserts a new product.
      */
-    public function store(User $user, Product $product): bool
+    public function store(User $user): bool
     {
         return $user->is_admin;
     }
@@ -71,8 +73,8 @@ class ProductPolicy
     /**
      * Updates a product.
      */
-    public function update(User $user, Product $product): bool
-    {;
+    public function update(User $user): bool
+    {
         return $user->is_admin;
     }
 }
