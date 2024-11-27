@@ -57,9 +57,7 @@ class OrderController extends Controller
         try {
             $orders = Order::all()->where('user_id', $id);
 
-            $this->authorize('listUserOrders', $orders);
-
-            return view('pages.orders-history', ['orders' => $orders]);
+            return view('pages.order-history', ['orders' => $orders]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'No orders found'], 404);
         } catch (AuthorizationException) {

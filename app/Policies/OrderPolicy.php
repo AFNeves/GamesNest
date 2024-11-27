@@ -18,20 +18,6 @@ class OrderPolicy
     }
 
     /**
-     * Shows the all order for a given user.
-     */
-    public function listUserOrders(User $user, Collection $orders): bool
-    {
-        $flag = true;
-        for ($i = 0; $i < $orders->count(); $i++) {
-            if ($orders[$i]->user_id !== $user->id) {
-                $flag = false;
-            }
-        }
-        return (Auth::check() && Auth::user()->is_admin) || $flag;
-    }
-
-    /**
      * Shows the users last order.
      */
     public function lastOrder(User $user, Order $order): bool

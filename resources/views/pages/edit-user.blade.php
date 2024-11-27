@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('header-context')
+    @include('components.header-context')
+@endsection
+
 @section('content')
     <div class="flex flex-col flex-grow items-center justify-center py-4 w-full max-w-[calc(50%)]">
         <form method="POST" action="{{ route('profile.update', ['id' => $user->id]) }}" class="auth-form w-2/3 p-4">

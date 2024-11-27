@@ -47,16 +47,14 @@ class KeyController extends Controller
     /**
      * Lists all keys.
      */
-    public function listUserKeys(User $user): HasManyThrough|JsonResponse
+    public function list(User $user): View|JsonResponse
     {
         try {
             $keys = $user->productKeys();
 
-            $this->authorize('list', $keys);
-
-            return $keys;
+            return view('pages.key-inventory', ['Keys' => $keys]);
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Keys not found'], 404);
+            return view('pages.key-inventory', ['Keys' => []]);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }

@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Order')
+@section('header-context')
+    @include('components.header-context')
+@endsection
 
 @section('content')
     <section id="Order">

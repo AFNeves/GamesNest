@@ -25,14 +25,6 @@ class KeyPolicy
     }
 
     /**
-     * Shows the keys of a given user.
-     */
-    public function listUserKeys(User $user): bool
-    {
-        return true;
-    }
-
-    /**
      * Shows the create key widget.
      */
     public function create(User $user): bool

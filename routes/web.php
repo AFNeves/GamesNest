@@ -42,8 +42,8 @@ Route::middleware('auth')->group(function () {
 
     // Orders
     Route::controller(OrderController::class)->group(function () {
-        Route::get('/order/{id}', 'listUserOrders')->name('order.history');
-        Route::get('/order/{user_id}/{order_id}', 'details')->name('order.details');
+        Route::get('/orders/{id}', 'listUserOrders')->name('order.history');
+        Route::get('/orders/{user_id}/{order_id}', 'details')->name('order.details');
     });
 
     // Keys
