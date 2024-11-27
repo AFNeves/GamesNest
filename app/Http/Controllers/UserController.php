@@ -2,66 +2,142 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 use App\Models\User;
 
 class UserController extends Controller
 {
     /**
      * Store a new user directly with the provided data.
-     *
-     * @param array $data
-     * @return User
      */
-    public static function storeDirect(array $data): User
+    public function storeDirect(array $data): User
     {
         return User::create($data);
     }
 
     /**
-     * Show the list of all users.
+     * Shows the user management page.
      */
-    public function index()
+    public function manage(): View|JsonResponse
     {
-        $users = User::all();
-        return view('users.index', compact('users'));
+        try {
+            $this->authorize('manage', User::class);
+
+            return view('pages.manage-users');
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 
     /**
-     * Show the details of a specific user.
+     * Shows the first 20 users using pagination.
      */
-    public function show($id)
+    public function index(): JsonResponse
     {
-        $user = User::findOrFail($id);
-        return view('users.show', compact('user'));
+        try {
+            $users = User::where('visibility', true)->paginate(20);
+
+            $this->authorize('index', $users);
+
+            return response()->json($users);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 
     /**
-     * Update a user's information.
+     * Shows the user page with the given id.
      */
-    public function update(Request $request, $id)
+    public function show(int $id): View|JsonResponse
     {
-        $user = User::findOrFail($id);
-        $data = $request->validate([
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|min:5|max:20|unique:users,username,' . $id,
-            'email' => 'sometimes|string|max:255|email|unique:users,email,' . $id,
-        ]);
+        try {
+            $user = User::findOrFail($id);
 
-        $user->update($data);
+            $this->authorize('show', $user);
 
-        return redirect()->back()->with('success', 'User updated successfully!');
+            return view('pages.user', ['user' => $user]);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
     }
 
     /**
-     * Delete a user.
+     * Shows the edit user widget.
      */
-    public function destroy($id)
+    public function edit(int $id): View|JsonResponse
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        try {
+            $user = User::findOrFail($id);
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+            $this->authorize('edit', $user);
+
+            return view('widgets.edit-user', ['user' => $user]);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+    }
+
+    /**
+     * Updates a user.
+     */
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            $this->authorize('update', $user);
+
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'username' => 'required|string|min:5|max:20|unique:users,username',
+                'email' => 'required|string|max:255|email|unique:users,email',
+                'password' => 'required|string|max:255|confirmed',
+            ]);
+
+            $user->fill($validated);
+
+            $user->save();
+
+            return response()->json($user);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
+    }
+
+    /**
+     * Deletes a user.
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            $this->authorize('destroy', $user);
+
+            $user->delete();
+
+            return response()->json($user);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 }
