@@ -38,11 +38,6 @@
                     @yield('search-bar')
                 @endif
 
-                @hasSection('admin-context')
-                    <!-- Admin Context -->
-                    @yield('admin-context')
-                @endif
-
                 @hasSection('header-context')
                     <!-- Login / User ID -->
                     @yield('header-context')

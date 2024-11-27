@@ -21,7 +21,7 @@ class UserController extends Controller
     public function manage(): View|JsonResponse
     {
         try {
-            $this->authorize('manage', User::class);
+            $this->authorize('manage', Auth::user());
 
             $users = User::orderBy('id', 'asc')->get();
 
