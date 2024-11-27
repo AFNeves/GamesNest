@@ -1,0 +1,703 @@
+openapi: '3.0.0'
+
+info:
+  version: '1.0'
+  title: 'LBAW GamesNest Web API'
+  description: 'Web Resources Specification (A7) for GamesNest'
+
+servers:
+  - url: https://api.server.test/v1
+    description: Production server
+
+externalDocs:
+  description: Find more info here.
+  url: https://web.fe.up.pt/~ssn/wiki/teach/lbaw/medialib/a07
+
+tags:
+  - name: 'M01: Authentication and Individual Profile'
+  - name: 'M02: Reviews, Wishlist and Shopping Cart'
+  - name: 'M03: User Administration and Static pages'
+  - name: 'M04: Product and Product Keys'
+  - name: 'M05: Discounts and Promotions'
+  - name: 'M06: Orders and Transactions'
+
+paths:
+  /login:
+    get:
+      operationId: R101
+      summary: 'R101: Login Form'
+      description: 'Provide login form. Access: PUB'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      responses:
+        '200':
+          description: 'Ok. Show Log-in UI'
+    post:
+      operationId: R102
+      summary: 'R102: Login Action'
+      description: 'Processes the login form submission. Access: PUB'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+
+      responses:
+        '302':
+          description: 'Redirect after processing the login credentials.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Successful authentication. Redirect to user profile.'
+                  value: '/home'
+                302Error:
+                  description: 'Failed authentication. Redirect to login form.'
+                  value: '/login'
+
+        '401':
+          description: 'Unauthorized. Login failed due to incorrect credentials.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Invalid email or password.'
+  /logout:
+    get:
+      operationId: R103
+      summary: 'R103: Logout Action'
+      description: 'Logout the current authenticated user. Access: USR, ADM'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      responses:
+        '302':
+          description: 'Redirect after processing logout.'
+          headers:
+            Location:
+              schema:
+                type: string
+  
+             
+  /register:
+    get:
+      operationId: R104
+      summary: 'R104: Register Form'
+      description: 'Provide new user registration form. Access: PUB'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      responses:
+        '200':
+          description: 'Ok. Show Sign-Up UI'
+    post:
+      operationId: R105
+      summary: 'R105: Register Action'
+      description: 'Processes the new user registration form submission. Access: PUB'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                email:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - username
+                - email
+                - password
+
+      responses:
+        '302':
+          description: 'Redirect after processing the new user information.'
+          headers:
+            Location:
+              schema:
+                type: string
+          
+  /profile/{id}:
+    get:
+      operationId: R106
+      summary: 'R106: View user profile'
+      description: 'Show the individual user profile. Access: OWN, ADM'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Successfully retrieved the user profile.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  username:
+                    type: string
+                  email:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+
+  /profile/{id}/edit_profile:
+    get:
+      operationId: R107
+      summary: 'R107: Edit Profile Form'
+      description: 'Retrieve the form to edit an user profile. Access: OWN, ADM'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show Edit Profile UI with current data.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  username:
+                    type: string
+                  email:
+                    type: string
+                  password:
+                    type: string
+                    format: password
+                  password_confirmation:
+                    type: string
+                    format: password
+                required:
+                  - first_name
+                  - last_name
+                  - username
+                  - email
+
+              
+
+    post:
+      operationId: R108
+      summary: 'R108: Edit Action'
+      description: 'Processes the edit profile form submission. Access: OWN, ADM'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      requestBody:  
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                
+      responses:
+        '302':
+          description: 'Redirect after processing the edit profile.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Successful editing. Redirect to user updated profile.'
+                  value: '/profile/{id}'
+                302Failure:
+                  description: 'Failed editing. Redirect to profile.'
+                  value: '/profile/{id}'
+        '400':
+          description: 'Bad request. Missing or invalid required fields.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+        '409':
+          description: 'Conflict. User with this email already exists.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+
+  /products/{id}:
+    get:
+      operationId: R401
+      summary: 'R401: View game'
+      description: 'Show the individual game page. Access: PUB'
+      tags:
+        - 'M04: Product and Product Keys'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show Game page'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  images:
+                    type: string
+                  type:
+                    type: string
+                  platform:
+                    type: string
+                  region:
+                    type: string
+                  price:
+                    type: number
+                  rating:
+                    type: number
+                  visibility:
+                    type: boolean
+                example:
+                  - id: 1
+                    title: FIFA 25 Steam Europe
+                    description: Most recent FIFA.
+                    images: /images/1
+                    type: MP3
+                    platform: Steam
+                    region: Europe
+                    price: 49,99
+                    rating: 4,3
+                    visibility: True
+
+  /products:
+    get:
+      operationId: R402
+      summary: '402: Search Games'
+      description: 'Searches for games and returns the results as JSON. Access: PUB.'
+      tags:
+        - 'M04: Product and Product Keys'
+      parameters:
+        - in: query
+          name: query
+          description: String to use for full-text search
+          schema:
+            type: string
+          required: false
+
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    images:
+                      type: string
+                    type:
+                      type: string
+                    platform:
+                      type: string
+                    region:
+                      type: string
+                    price:
+                      type: number
+                    rating:
+                      type: number
+                    visibility:
+                      type: boolean
+                example:
+                  - id: 1
+                    title: FIFA 25 Steam Europe
+                    description: Most recent FIFA.
+                    images: /images/1
+                    type: MP3
+                    platform: Steam
+                    region: Europe
+                    price: 49,99
+                    rating: 4,3
+                    visibility: True
+
+  /orders/{id}:
+    get:
+      operationId: R601
+      summary: 'R601: View all orders from an user'
+      description: 'Retrieve a list of all orders, filtered by user ID. Access: OWN, ADM'
+      tags:
+        - 'M06: Orders and Transactions'
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: 'Ok. A list of orders is returned'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orderId:
+                      type: integer
+                    userId:
+                      type: integer
+                    orderDate:
+                      type: string
+                      format: date-time
+                    totalAmount:
+                      type: number
+                      format: float
+                    status:
+                      type: string
+                    currency:
+                      type: string
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          itemId:
+                            type: integer
+                          title:
+                            type: string
+                          quantity:
+                            type: integer
+                          price:
+                            type: number
+                            format: float
+
+    #add order/{id}/details
+
+  /order/{id}/details:
+    get:
+      operationId: R602
+      summary: 'R602: View Order Details'
+      description: 'View details of an order. Access: OWN, ADM'
+      tags:
+        - 'M06: Orders and Transactions'
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: 'Ok. Order details are returned.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                  userId:
+                    type: integer
+                  orderDate:
+                    type: string
+                    format: date-time
+                  totalAmount:
+                    type: number
+                    format: float
+                  status:
+                    type: string
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key_id:
+                          type: integer
+                        key:
+                          type: string
+                        game_id:
+                          type: string
+                        quantity:
+                          type: integer
+                        price:
+                          type: number
+                          format: float
+        
+
+  /keys/{id}:
+    get:
+      operationId: R403
+      summary: 'R403: View own keys'
+      description: 'Retrieve a list of all key, filtered by user ID. Access: OWN, ADM'
+      tags:
+        - 'M04: Product and Product Keys'
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: 'Ok. A list of keys is returned'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    keyId:
+                      type: integer
+                    productId:
+                      type: integer
+                    key:
+                      type: string
+                    productName:
+                      type: string
+                    orderDate:
+                      type: string
+                      format: date
+                    orderId:
+                      type: integer
+
+
+  /view_cart:
+    get:
+      operationId: R201
+      summary: 'R201: View Shopping Cart'
+      description: 'Show items currently in the shopping cart. Access: OWN'
+      tags:
+        - 'M02: Reviews, Wishlist and Shopping Cart'
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          description: 'The ID of the user to retrieve the shopping cart for.'
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Shopping cart contents is shown.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemId:
+                          type: integer
+                        title:
+                          type: string
+                        quantity:
+                          type: integer
+                        price:
+                          type: number
+                          format: float
+                        totalPrice:
+                          type: number
+                          format: float
+                  cartTotal:
+                    type: number
+                    format: float
+                example:
+                  items:
+                    - itemId: 1
+                      title: Fifa 25
+                      quantity: 2
+                      price: 29.99
+                      totalPrice: 59.98
+                  cartTotal: 59.98
+
+    put:
+      operationId: R202
+      summary: 'R202: Editing Shopping Cart action'
+      description: 'Edit items currently in the shopping cart. Access: OWN'
+      tags:
+        - 'M02: Reviews, Wishlist and Shopping Cart'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      itemId:
+                        type: integer
+                      title:
+                        type: string
+                      quantity:
+                        type: integer
+                      price:
+                        type: number
+                        format: float
+                      totalPrice:
+                        type: number
+                        format: float
+                cartTotal:
+                  type: number
+                  format: float
+              example:
+                items:
+                  - itemId: 1
+                    title: Fifa 25
+                    quantity: 2
+                    price: 29.99
+                    totalPrice: 59.98
+                cartTotal: 59.98
+      responses:
+        '302':
+          description: 'Redirect after processing the cart edit.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Successful editing. Redirect to the updated cart.'
+                  value: '/view_cart'
+                302Failure:
+                  description: 'Failed editing. Redirect to profile.'
+                  value: '/view_cart'
+
+  /checkout:
+    get:
+      operationId: R203
+      summary: 'R202: Checkout items on Shopping Cart'
+      description: 'Show items currently in the shopping cart and possible payment methods. Access: OWN'
+      tags:
+        - 'M02: Reviews, Wishlist and Shopping Cart'
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+          description: 'The ID of the user to retrieve the shopping cart for.'
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Shopping cart and payment methods contents is shown.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemId:
+                          type: integer
+                        title:
+                          type: string
+                        quantity:
+                          type: integer
+                        price:
+                          type: number
+                          format: float
+                        totalPrice:
+                          type: number
+                          format: float
+                  cartTotal:
+                    type: number
+                    format: float
+                  availablePaymentMethods:
+                    type: array
+                    items:
+                      type: string
+                      enum: [ 'Card', 'PayPal', 'MBWay', 'Revolut' ]
+                example:
+                  items:
+                    - itemId: 1
+                      title: Fifa 25
+                      quantity: 2
+                      price: 29.99
+                      totalPrice: 59.98
+                  cartTotal: 59.98
