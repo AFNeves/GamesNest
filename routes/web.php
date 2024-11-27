@@ -48,10 +48,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/keys/{id}', 'list')->name('keysiventory');
     });
 
-    // Products
-    Route::controller(ProductController::class)->group(function () {
-        Route::get('/products/{id}', 'show');
-    });
+
+});
+// Products 
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/products/{id}', 'show')->name('products.show'); // Add name to route
 });
 // Shopping Cart Routes
 Route::controller(ShopCartController::class)->group(function () {

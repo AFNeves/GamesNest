@@ -8,8 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Display the checkout page
+     * Shows order summary and collects shipping/payment information
+     */
     public function show()
     {
+        // Get all items in user's cart with their details and prices
         $cartItems = DB::select('
             SELECT 
                 p.id AS product_id,
@@ -24,16 +29,22 @@ class CheckoutController extends Controller
             [Auth::id()]
         );
 
+        // Calculate total order amount including quantities and discounts
         $total = collect($cartItems)->sum(function($item) {
             return $item->final_price * $item->quantity;
         });
 
+        // Pass cart items and total to the checkout view
         return view('pages.checkout', compact('cartItems', 'total'));
     }
 
+    /**
+     * Process the checkout
+     * Validates input, processes payment, creates order
+     */
     public function process(Request $request)
     {
-        // Validate checkout data
+        // Validate user input for shipping information
         $validated = $request->validate([
             'address' => 'required|string',
             'city' => 'required|string',
@@ -41,13 +52,21 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:credit_card,paypal'
         ]);
 
-        // Process payment and create order (to be implemented)
-        
-        // Clear cart after successful order
+        // To Do:
+        // 1. Process payment through payment gateway
+        // 2. Create order record in database
+        // 3. Assign product keys to order
+        // 4. Send confirmation email
+        // 5. Handle payment failures
+
+        $userId = Auth::id();
+        // Clear user's cart after successful order
         DB::table('shopping_cart')
             ->where('user_id', Auth::id())
             ->delete();
 
-        return redirect()->route('profile')->with('success', 'Order placed successfully!');
+        // Redirect to profile with success message
+        return redirect()->route('profile', ['id' => $userId])
+        ->with('success', 'Order placed successfully!');
     }
 }

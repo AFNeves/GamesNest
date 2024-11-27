@@ -58,6 +58,7 @@
 
                 <h1><a href="{{ url('/cards') }}">GamesNest</a></h1>
                 @if (Auth::check())
+                    <a class="button" href="{{ url('/cart') }}"> Shopping Cart </a>
                     <a class="button" href="{{ url('/logout') }}"> Logout </a> <a href="/profile">{{ Auth::user()->username }}</a> <!-- toFix should be the username -->
                 @endif
                 <!--
@@ -77,6 +78,17 @@
                 </a>
             </header>
             <section id="content">
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
                 @yield('content')
             </section>
         </main>

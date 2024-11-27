@@ -63,19 +63,12 @@ class ProductController extends Controller
     /**
      * Shows the product page with the given id.
      */
-    public function show(int $id): View|JsonResponse
+    public function show(int $id): View
     {
-        try {
-            $product = Product::findOrFail($id);
-
-            $this->authorize('show', $product);
-
-            return view('pages.product', ['product' => $product]);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Product not found'], 404);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        // Remove authorization check for viewing products
+        $product = Product::findOrFail($id);
+        
+        return view('pages.products', ['product' => $product]);
     }
 
     /**
