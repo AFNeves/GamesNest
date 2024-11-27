@@ -10,7 +10,7 @@ class UserPolicy
     /**
      * Shows the user management page.
      */
-    public function manage(User $user): bool
+    public function manage(User $authed, User $user): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }
@@ -18,7 +18,7 @@ class UserPolicy
     /**
      * Shows the user of a given user for a given product.
      */
-    public function index(User $user): bool
+    public function index(User $authed, User $user): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }
@@ -26,7 +26,7 @@ class UserPolicy
     /**
      * Shows the user of a given user for a given product.
      */
-    public function show(User $user): bool
+    public function show(User $authed, User $user): bool
     {
         return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
@@ -34,7 +34,7 @@ class UserPolicy
     /**
      * Shows the edit user widget.
      */
-    public function edit(User $user): bool
+    public function edit(User $authed, User $user): bool
     {
         return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
@@ -42,7 +42,7 @@ class UserPolicy
     /**
      * Updates a user.
      */
-    public function update(User $user): bool
+    public function update(User $authed, User $user): bool
     {
         return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
@@ -50,7 +50,7 @@ class UserPolicy
     /**
      * Deletes a user.
      */
-    public function destroy(User $user): bool
+    public function destroy(User $authed, User $user): bool
     {
         return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }

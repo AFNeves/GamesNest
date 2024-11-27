@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -22,7 +23,9 @@ class UserController extends Controller
         try {
             $this->authorize('manage', User::class);
 
-            return view('pages.users');
+            $users = User::orderBy('id', 'asc')->get();
+
+            return view('pages.users', ['users' => $users]);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -49,7 +52,7 @@ class UserController extends Controller
     /**
      * Shows the user page with the given id.
      */
-    public function show(int $id): View|JsonResponse
+    public function show(int $id): View|RedirectResponse|JsonResponse
     {
         try {
             $user = User::findOrFail($id);
@@ -58,7 +61,7 @@ class UserController extends Controller
 
             return view('pages.user', ['user' => $user]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return redirect()->route('profile.show', ['id' => Auth::id()]);
         } catch (ValidationException) {
             return response()->json(['error' => 'Validation failed'], 400);
         }
