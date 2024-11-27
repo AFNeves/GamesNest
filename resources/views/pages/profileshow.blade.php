@@ -1,5 +1,12 @@
-
 @extends('layouts.app')
+
+@section('search-bar')
+    @include('components.search-bar')
+@endsection
+
+@section('header-context')
+    @include('components.header-context')
+@endsection
 
 @section('content')
     <div class="container">

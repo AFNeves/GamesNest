@@ -1,37 +1,32 @@
 @extends('layouts.app')
 
 @section('content')
-<form method="POST" action="{{ route('login') }}">
-    {{ csrf_field() }}
+    <div class="flex flex-col flex-grow items-center justify-center py-4 w-full max-w-[calc(50%)]">
+        <form method="POST" action="{{ route('login-action') }}" class="auth-form w-2/3 p-4 space-y-10">
+            @csrf
 
-    <label for="email">E-mail</label>
-    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
-    @if ($errors->has('email'))
-        <span class="error">
-          {{ $errors->first('email') }}
-        </span>
-    @endif
+            <div class="space-y-8 whitespace-nowrap w-full">
+                <input type="email" name="email" class="auth-form-input" placeholder="Email" value="{{ old('email') }}" required />
 
-    <label for="password" >Password</label>
-    <input id="password" type="password" name="password" required>
-    @if ($errors->has('password'))
-        <span class="error">
-            {{ $errors->first('password') }}
-        </span>
-    @endif
+                <input type="password" name="password" class="auth-form-input" placeholder="Password" required />
+            </div>
 
-    <label>
-        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Remember Me
-    </label>
+            {{-- TODO: PA Delivery
+            <div class="flex items-center justify-start w-full">
+                <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" />
+                <label for="remember" class="ms-2 text-base text-gray-800 dark:text-gray-300">Remember me</label>
+            </div>
+            --}}
 
-    <button type="submit">
-        Login
-    </button>
-    <a class="button button-outline" href="{{ route('register') }}">Register</a>
-    @if (session('success'))
-        <p class="success">
-            {{ session('success') }}
-        </p>
-    @endif
-</form>
+            <button type="submit" class="auth-form-button">Login</button>
+
+            @if ($errors->any())
+                <div class="text-red-500 text-base m-4">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <a href="{{ route('register') }}" class="text-lg text-gray-300 mb-8">Don't have an account? Let's fix that!</a>
+        </form>
+    </div>
 @endsection
