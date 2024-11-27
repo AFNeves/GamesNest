@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -46,10 +47,10 @@ class KeyController extends Controller
     /**
      * Lists all keys.
      */
-    public function listUserKeys(): Collection|JsonResponse
+    public function listUserKeys(User $user): Collection|JsonResponse
     {
         try {
-            $keys = Auth::user()->productKeys();
+            $keys = $user->productKeys();
 
             $this->authorize('list', $keys);
 
