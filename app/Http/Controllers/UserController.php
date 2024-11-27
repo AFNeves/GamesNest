@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,7 +22,7 @@ class UserController extends Controller
         try {
             $this->authorize('manage', User::class);
 
-            return view('pages.manage-users');
+            return view('pages.users');
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -73,7 +74,7 @@ class UserController extends Controller
 
             $this->authorize('edit', $user);
 
-            return view('widgets.edit-user', ['user' => $user]);
+            return view('pages.edit-user', ['user' => $user]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'User not found'], 404);
         } catch (AuthorizationException) {
@@ -84,7 +85,7 @@ class UserController extends Controller
     /**
      * Updates a user.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, $id): RedirectResponse|JsonResponse
     {
         try {
             $user = User::findOrFail($id);
@@ -94,16 +95,31 @@ class UserController extends Controller
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
-                'username' => 'required|string|min:5|max:20|unique:users,username',
-                'email' => 'required|string|max:255|email|unique:users,email',
-                'password' => 'required|string|max:255|confirmed',
             ]);
+
+            if ($request->has('username') && $request->username !== $user->username) {
+                $validated['email'] = $request->validate([
+                    'username' => 'required|string|min:5|max:20|unique:users,username',
+                ])['username'];
+            }
+
+            if ($request->has('email') && $request->email !== $user->email) {
+                $validated['email'] = $request->validate([
+                    'email' => 'required|string|max:255|email|unique:users,email',
+                ])['email'];
+            }
+
+            if ($request->has('password') && $request->password !== null) {
+                $validated['password'] = $request->validate([
+                    'password' => 'required|string|max:255|confirmed',
+                ])['password'];
+            }
 
             $user->fill($validated);
 
             $user->save();
 
-            return response()->json($user);
+            return redirect()->route('profile.show', ['id' => $user->id]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'User not found'], 404);
         } catch (AuthorizationException) {
@@ -116,7 +132,7 @@ class UserController extends Controller
     /**
      * Deletes a user.
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): RedirectResponse|JsonResponse
     {
         try {
             $user = User::findOrFail($id);
@@ -125,7 +141,7 @@ class UserController extends Controller
 
             $user->delete();
 
-            return response()->json($user);
+            return redirect()->route('/');
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'User not found'], 404);
         } catch (AuthorizationException) {
