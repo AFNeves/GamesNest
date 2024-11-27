@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Eloquent\Collection as Collection;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 use App\Models\ProductKey as Key;
 
@@ -47,7 +47,7 @@ class KeyController extends Controller
     /**
      * Lists all keys.
      */
-    public function listUserKeys(User $user): Collection|JsonResponse
+    public function listUserKeys(User $user): HasManyThrough|JsonResponse
     {
         try {
             $keys = $user->productKeys();
