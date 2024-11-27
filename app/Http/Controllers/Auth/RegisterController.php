@@ -59,7 +59,10 @@ class RegisterController extends Controller
 
         UserController::storeDirect($data);
 
-        Auth::attempt(['email' => $data['email'], 'password' => $data['password']]);
+        Auth::attempt([
+            'email' => $request->email,         // Use raw email from request
+            'password' => $request->password    // Use raw password from request
+        ]);
 
         $request->session()->regenerate();
 
