@@ -14,7 +14,7 @@ class PaymentMethodPolicy
      */
     public function fetch(User $user, PaymentMethod $payment): bool
     {
-        return Auth::$user()->is_admin || Auth::$user()->id === $payment->user_id;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $payment->user_id;
     }
 
     /**
@@ -24,11 +24,11 @@ class PaymentMethodPolicy
     {
         $flag = true;
         for ($i = 0; $i < $payments->count(); $i++) {
-            if ($payments[$i]->user_id !== Auth::$user()->id) {
+            if ($payments[$i]->user_id !== $user->id) {
                 $flag = false;
             }
         }
-        return Auth::$user()->is_admin || $flag;
+        return (Auth::check() && Auth::user()->is_admin) || $flag;
     }
 
     /**
@@ -44,7 +44,7 @@ class PaymentMethodPolicy
      */
     public function edit(User $user, PaymentMethod $payment): bool
     {
-        return Auth::$user()->is_admin || Auth::$user()->id === $payment->user_id;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $payment->user_id;
     }
 
     /**
@@ -60,7 +60,7 @@ class PaymentMethodPolicy
      */
     public function update(User $user, PaymentMethod $payment): bool
     {
-        return Auth::$user()->is_admin || Auth::$user()->id === $payment->user_id;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $payment->user_id;
     }
 
     /**
@@ -68,6 +68,6 @@ class PaymentMethodPolicy
      */
     public function destroy(User $user, PaymentMethod $payment): bool
     {
-        return Auth::$user()->is_admin || Auth::$user()->id === $payment->user_id;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $payment->user_id;
     }
 }

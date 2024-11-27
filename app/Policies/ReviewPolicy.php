@@ -20,8 +20,7 @@ class ReviewPolicy
      */
     public function userReview(User $user, Review $review): bool
     {
-        if ($user->id === $review->user_id) { return true; }
-        return $user->is_admin;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $review->user_id;
     }
 
     /**
@@ -29,7 +28,7 @@ class ReviewPolicy
      */
     public function create(User $user, Review $review): bool
     {
-        return !($user->is_admin);
+        return true;
     }
 
     /**
@@ -37,8 +36,7 @@ class ReviewPolicy
      */
     public function edit(User $user , Review $review): bool
     {
-        if ($user->id === $review->user_id) { return true; }
-        return $user->is_admin;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $review->user_id;
     }
 
     /**
@@ -46,7 +44,7 @@ class ReviewPolicy
      */
     public function store(User $user, Review $review): bool
     {
-        return !($user->is_admin);
+        return true;
     }
 
     /**
@@ -54,8 +52,7 @@ class ReviewPolicy
      */
     public function update(User $user, Review $review): bool
     {
-        if ($user->id === $review->user_id) { return true; }
-        return $user->is_admin;
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === $review->user_id;
     }
 
     /**
@@ -63,7 +60,6 @@ class ReviewPolicy
      */
     public function destroy(User $user, Review $review): bool
     {
-        if ($user->id === $review->user_id) { return true; }
-        return $user->is_admin;
+        return (Auth::check() && Auth::user()->is_admin)|| $user->id === $review->user_id;
     }
 }

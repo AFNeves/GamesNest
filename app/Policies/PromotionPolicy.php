@@ -28,7 +28,7 @@ class PromotionPolicy
      */
     public function create(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -36,7 +36,7 @@ class PromotionPolicy
      */
     public function edit(User $user ): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -44,7 +44,7 @@ class PromotionPolicy
      */
     public function store(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -52,7 +52,7 @@ class PromotionPolicy
      */
     public function update(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -60,6 +60,6 @@ class PromotionPolicy
      */
     public function destroy(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

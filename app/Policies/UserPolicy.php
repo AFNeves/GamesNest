@@ -20,7 +20,7 @@ class UserPolicy
      */
     public function manage(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -28,7 +28,7 @@ class UserPolicy
      */
     public function index(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -36,7 +36,7 @@ class UserPolicy
      */
     public function show(User $user): bool
     {
-        return $user->is_admin || $user->id === Auth::id();
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
 
     /**
@@ -44,7 +44,7 @@ class UserPolicy
      */
     public function edit(User $user): bool
     {
-        return $user->is_admin || $user->id === Auth::id();
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
 
     /**
@@ -52,7 +52,7 @@ class UserPolicy
      */
     public function update(User $user): bool
     {
-        return $user->is_admin || $user->id === Auth::id();
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
 
     /**
@@ -60,6 +60,6 @@ class UserPolicy
      */
     public function destroy(User $user): bool
     {
-        return $user->is_admin || $user->id === Auth::id();
+        return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
     }
 }

@@ -8,14 +8,6 @@ use Illuminate\Support\Facades\Auth;
 class NotificationPolicy
 {
     /**
-     * Shows the notification of a given user for a given product.
-     */
-    public function list(User $user): bool
-    {
-        return Auth::user()->is_admin;
-    }
-
-    /**
      * Show the notification page for a given id.
      */
     public function show(User $user): bool
@@ -24,11 +16,19 @@ class NotificationPolicy
     }
 
     /**
+     * Shows the notification of a given user for a given product.
+     */
+    public function list(User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    /**
      * Shows the create notification widget.
      */
     public function create(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -36,7 +36,7 @@ class NotificationPolicy
      */
     public function edit(User $user ): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -44,7 +44,7 @@ class NotificationPolicy
      */
     public function store(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -52,7 +52,7 @@ class NotificationPolicy
      */
     public function update(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -60,6 +60,6 @@ class NotificationPolicy
      */
     public function destroy(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

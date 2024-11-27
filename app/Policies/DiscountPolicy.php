@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class DiscountPolicy
 {
@@ -19,7 +20,7 @@ class DiscountPolicy
      */
     public function list(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -27,7 +28,7 @@ class DiscountPolicy
      */
     public function create(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -35,7 +36,7 @@ class DiscountPolicy
      */
     public function edit(User $user ): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -43,7 +44,7 @@ class DiscountPolicy
      */
     public function store(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -51,7 +52,7 @@ class DiscountPolicy
      */
     public function update(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -59,6 +60,6 @@ class DiscountPolicy
      */
     public function destroy(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

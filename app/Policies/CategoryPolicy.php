@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryPolicy
 {
@@ -35,7 +36,7 @@ class CategoryPolicy
      */
     public function create(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -43,7 +44,7 @@ class CategoryPolicy
      */
     public function edit(User $user ): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -51,7 +52,7 @@ class CategoryPolicy
      */
     public function store(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -59,7 +60,7 @@ class CategoryPolicy
      */
     public function update(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -67,6 +68,6 @@ class CategoryPolicy
      */
     public function destroy(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

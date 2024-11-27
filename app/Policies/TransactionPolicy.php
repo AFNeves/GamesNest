@@ -14,7 +14,7 @@ class TransactionPolicy
      */
     public function fetch(User $user, Transaction $transaction): bool
     {
-        return Auth::user()->is_admin || $transaction->user_id === Auth::user()->id;
+        return (Auth::check() && Auth::user()->is_admin) || $transaction->user_id === $user->id;
     }
 
     /**
@@ -28,7 +28,7 @@ class TransactionPolicy
                 $flag = false;
             }
         }
-        return Auth::user()->is_admin || $flag;
+        return (Auth::check() && Auth::user()->is_admin) || $flag;
     }
 
     /**
@@ -36,7 +36,7 @@ class TransactionPolicy
      */
     public function create(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -44,7 +44,7 @@ class TransactionPolicy
      */
     public function edit(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -52,7 +52,7 @@ class TransactionPolicy
      */
     public function store(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -60,7 +60,7 @@ class TransactionPolicy
      */
     public function update(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
     
     /**
@@ -68,6 +68,6 @@ class TransactionPolicy
      */
     public function delete(User $user): bool
     {
-        return Auth::user()->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\ProductKey as Key;
+use Illuminate\Support\Facades\Auth;
 
 class KeyPolicy
 {
@@ -20,7 +21,7 @@ class KeyPolicy
             }
         }
 
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -36,7 +37,7 @@ class KeyPolicy
      */
     public function create(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -44,7 +45,7 @@ class KeyPolicy
      */
     public function edit(User $user ): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -52,7 +53,7 @@ class KeyPolicy
      */
     public function store(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -60,7 +61,7 @@ class KeyPolicy
      */
     public function update(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -68,6 +69,6 @@ class KeyPolicy
      */
     public function destroy(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

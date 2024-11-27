@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 
 class OrderPolicy
@@ -13,7 +14,7 @@ class OrderPolicy
      */
     public function details(User $user, Order $order): bool
     {
-        return $user->is_admin || $order->user_id === $user->id;
+        return (Auth::check() && Auth::user()->is_admin) || $order->user_id === $user->id;
     }
 
     /**
@@ -27,7 +28,7 @@ class OrderPolicy
                 $flag = false;
             }
         }
-        return $user->is_admin || $flag;
+        return (Auth::check() && Auth::user()->is_admin) || $flag;
     }
 
     /**
@@ -35,7 +36,7 @@ class OrderPolicy
      */
     public function lastOrder(User $user, Order $order): bool
     {
-        return $user->is_admin || $order->user_id === $user->id;
+        return (Auth::check() && Auth::user()->is_admin) || $order->user_id === $user->id;
     }
 
     /**
@@ -43,7 +44,7 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -51,7 +52,7 @@ class OrderPolicy
      */
     public function edit(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -59,7 +60,7 @@ class OrderPolicy
      */
     public function store(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -67,6 +68,6 @@ class OrderPolicy
      */
     public function update(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

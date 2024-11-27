@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class ProductPolicy
 {
@@ -51,7 +52,7 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -59,7 +60,7 @@ class ProductPolicy
      */
     public function edit(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -67,7 +68,7 @@ class ProductPolicy
      */
     public function store(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
@@ -75,6 +76,6 @@ class ProductPolicy
      */
     public function update(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 }
