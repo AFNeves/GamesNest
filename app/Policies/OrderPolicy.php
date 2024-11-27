@@ -2,20 +2,71 @@
 
 namespace App\Policies;
 
-use App\Models\Order;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Order;
+use Illuminate\Database\Eloquent\Collection;
 
-class OrderPolicy{
-
-    public function __construct(){
+class OrderPolicy
+{
+    /**
+     * Fetches an order.
+     */
+    public function details(User $user, Order $order): bool
+    {
+        return $user->is_admin || $order->user_id === $user->id;
     }
 
-    public function list(User $user,string $id){
-        return $user->id === $id;
+    /**
+     * Shows the all order for a given user.
+     */
+    public function listUserOrders(User $user, Collection $orders): bool
+    {
+        $flag = true;
+        for ($i = 0; $i < $orders->count(); $i++) {
+            if ($orders[$i]->user_id !== $user->id) {
+                $flag = false;
+            }
+        }
+        return $user->is_admin || $flag;
     }
 
-    public function details(User $user,string $id){
-        return ($user->id === $id or Auth::user()->is_admin);
+    /**
+     * Shows the users last order.
+     */
+    public function lastOrder(User $user, Order $order): bool
+    {
+        return $user->is_admin || $order->user_id === $user->id;
+    }
+
+    /**
+     * Shows the create order widget.
+     */
+    public function create(User $user): bool
+    {
+        return $user->is_admin;
+    }
+
+    /**
+     * Shows the edit order widget.
+     */
+    public function edit(User $user): bool
+    {
+        return $user->is_admin;
+    }
+
+    /**
+     * Inserts a new order.
+     */
+    public function store(User $user): bool
+    {
+        return $user->is_admin;
+    }
+
+    /**
+     * Updates an order.
+     */
+    public function update(User $user): bool
+    {
+        return $user->is_admin;
     }
 }
