@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-
-use Illuminate\Support\Facades\DB;  
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 
 
@@ -69,6 +70,76 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         
         return view('pages.products', ['product' => $product]);
+    }
+
+    /**
+     * Searches for exact matches and redirects otherwise.
+     */
+    public function search(Request $request): RedirectResponse|JsonResponse
+    {
+        try {
+            $this->authorize('search', Product::class);
+
+            $query = $request->validate([
+                'query' => 'required|string'
+            ]);
+
+            $exactMatch = Product::where('visibility', true)
+                ->whereRaw("LOWER(title) = ?", [strtolower($query['query'])])
+                ->first();
+
+            if ($exactMatch) {
+                return redirect()->route('product', ['id' => $exactMatch->id]);
+            }
+
+            return redirect()->route('display_search', ['query' => $query['query']]);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
+    }
+
+    /**
+     * Performs a full-text search.
+     */
+    public function ftsearch(string $query): Collection|JsonResponse
+    {
+        try {
+            $this->authorize('ftsearch', Product::class);
+
+            return Product::where('visibility', true)
+                ->whereRaw("tsvectors @@ plainto_tsquery('english', ?)", [$query])
+                ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$query])
+                ->take(10)
+                ->get();
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
+    }
+
+    /**
+     * Displays the search results.
+     */
+    public function display(Request $request): View|JsonResponse
+    {
+        try {
+            $this->authorize('display', Product::class);
+
+            $query = $request->validate([
+                'query' => 'required|string'
+            ]);
+
+            $products = $this->ftsearch($query['query']);
+
+            return view('pages.search', ['products' => $products]);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
     }
 
     /**

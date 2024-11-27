@@ -20,13 +20,13 @@ Route::get('/', function () {
 
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
-    Route::post('/login', 'authenticate');
+    Route::post('/login', 'authenticate')->name('login-action');
     Route::get('/logout', 'logout')->name('logout');
 });
 
 Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
-    Route::post('/register', 'register');
+    Route::post('/register', 'register')->name('register-action');
 });
 // Protected Routes
 Route::middleware('auth')->group(function () {
@@ -48,7 +48,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/keys/{id}', 'list')->name('keysiventory');
     });
 
-
+    // Products
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('/product/{id}', 'show')->name('product');
+        Route::post('/search', 'search')->name('search');
+        Route::get('/search', 'display')->name('display_search');
+    });
 });
 // Products 
 Route::controller(ProductController::class)->group(function () {
