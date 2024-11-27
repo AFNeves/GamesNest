@@ -23,6 +23,10 @@ VALUES
     ('Obadias', 'Shortt', 'oshortt18768', 'obadias.shortt@yahoo.com', '41%ze!X9', false),
     ('Iver', 'Lynn', 'ilynn42682', 'iver.lynn@yahoo.com', '9Y*s!c*Z#$$p', false);
 
+UPDATE users SET profile_picture = 'images.jpeg' WHERE id = 2;
+UPDATE users SET profile_picture = 'uporto.png' WHERE username = 'TCunhaAdmin';
+UPDATE users SET profile_picture = 'uporto.png' WHERE username = 'TCunhaClient';
+
 INSERT INTO categories(name, description)
 VALUES
     ('Action', 'Fast-paced games focused on physical challenges, including combat and quick reflexes.'),
