@@ -3,30 +3,28 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Collection;
 
-class OrderPolicy
+class PromotionPolicy
 {
     /**
-     * Fetches an order.
+     * Show the promotion page for a given id.
      */
-    public function details(User $user, Order $order): bool
+    public function show(User $user): bool
     {
-        return (Auth::check() && Auth::user()->is_admin) || $order->user_id === $user->id;
+        return true;
     }
 
     /**
-     * Shows the users last order.
+     * Shows the promotion of a given user for a given product.
      */
-    public function lastOrder(User $user, Order $order): bool
+    public function list(User $user): bool
     {
-        return (Auth::check() && Auth::user()->is_admin) || $order->user_id === $user->id;
+        return true;
     }
 
     /**
-     * Shows the create order widget.
+     * Shows the create promotion widget.
      */
     public function create(User $user): bool
     {
@@ -34,15 +32,15 @@ class OrderPolicy
     }
 
     /**
-     * Shows the edit order widget.
+     * Shows the edit promotion widget.
      */
-    public function edit(User $user): bool
+    public function edit(User $user ): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
-     * Inserts a new order.
+     * Inserts a new promotion.
      */
     public function store(User $user): bool
     {
@@ -50,9 +48,17 @@ class OrderPolicy
     }
 
     /**
-     * Updates an order.
+     * Updates a promotion.
      */
     public function update(User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    /**
+     * Deletes a promotion.
+     */
+    public function destroy(User $user): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }

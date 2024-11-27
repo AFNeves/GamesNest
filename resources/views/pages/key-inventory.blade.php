@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Keys')
+@section('header-context')
+    @include('components.header-context')
+@endsection
 
 @section('content')
     <section id="Keys">
         <h1>
-            Your Key Iventory
+            Your Key Inventory
         </h1>
-        @foreach($orders as $order)
+        @foreach($keys as $key)
             <table>
                 <td></td>
                 <td>Order Id</td>
@@ -17,7 +19,7 @@
                 <td>Platform</td>
                 <td>Region</td>
                 <td>Key</td>
-                @each('partials.key',$order->keys, 'key')
+                @each('partials.key',$key, 'key')
                 <article class="key">
                 </article>
             </table>

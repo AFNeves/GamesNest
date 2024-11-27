@@ -28,12 +28,14 @@ class User extends Authenticatable
         'email',
         'password',
         'profile_picture',
-        'preferred_address'
+        'preferred_address',
+        'remember_token'
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'is_admin'
     ];
 
     protected $casts = [
@@ -41,11 +43,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'preferred_address' => Address::class
     ];
-
-    public function getFullNameAttribute()
-    {
-        return "{$this->first_name} {$this->last_name}";
-    }
 
     public function orders(): HasMany
     {

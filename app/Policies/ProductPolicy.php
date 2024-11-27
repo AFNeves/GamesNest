@@ -3,10 +3,13 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 
 class ProductPolicy
 {
+    /**
+     * Shows the first 10 products using pagination.
+     */
     public function index(User $user): bool
     {
         return true;
@@ -37,7 +40,7 @@ class ProductPolicy
     }
 
     /**
-     * Displays the search results.
+     * Shows the results of full text search.
      */
     public function display(User $user): bool
     {
@@ -47,32 +50,32 @@ class ProductPolicy
     /**
      * Shows the create product widget.
      */
-    public function create(User $user, Product $product): bool
+    public function create(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
      * Shows the edit product widget.
      */
-    public function edit(User $user, Product $product): bool
+    public function edit(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
      * Inserts a new product.
      */
-    public function store(User $user, Product $product): bool
+    public function store(User $user): bool
     {
-        return $user->is_admin;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
      * Updates a product.
      */
-    public function update(User $user, Product $product): bool
-    {;
-        return $user->is_admin;
+    public function update(User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin;
     }
 }

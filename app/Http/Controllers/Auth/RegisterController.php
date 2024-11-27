@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\User;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -57,7 +57,7 @@ class RegisterController extends Controller
         $data = $request->only('first_name', 'last_name', 'username', 'email');
         $data['password'] = Hash::make($request->password);
 
-        $user = UserController::storeDirect($data);
+        $user = User::create($data);
 
         Auth::login($user);
 

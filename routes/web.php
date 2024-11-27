@@ -1,13 +1,14 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+
+use App\Http\Controllers\KeyController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopCartController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\KeyController;
 use App\Http\Controllers\CheckoutController;
-
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
@@ -30,22 +31,24 @@ Route::controller(RegisterController::class)->group(function () {
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
-    // Profile
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get('/profile/{id}', 'show')->name('profile');
-        Route::get('/profile/{id}/editprofile', 'edit_profile')->name('profile.edit');
-        Route::put('/profile/{id}/editprofile', 'update_profile')->name('profile.update');
+    // User Management
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/users', 'manage')->name('management');
+        Route::get('/profile/{id}', 'show')->name('profile.show');
+        Route::get('/profile/{id}/edit', 'edit')->name('profile.edit');
+        Route::post('/profile/{id}', 'update')->name('profile.update');
+        Route::delete('/profile/{id}', 'destroy')->name('profile.destroy');
     });
 
     // Orders
     Route::controller(OrderController::class)->group(function () {
-        Route::get('/orders/{id}', 'list')->name('ordershistory');
-        Route::get('/order/{id}/details', 'details')->name('orderdetails');
+        Route::get('/orders/{id}', 'listUserOrders')->name('order.history');
+        Route::get('/orders/{user_id}/{order_id}', 'details')->name('order.details');
     });
 
     // Keys
     Route::controller(KeyController::class)->group(function () {
-        Route::get('/keys/{id}', 'list')->name('keysiventory');
+        Route::get('/keys/{id}', 'list')->name('key.inventory');
     });
 
     // Products

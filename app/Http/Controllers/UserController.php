@@ -2,66 +2,153 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 use App\Models\User;
 
 class UserController extends Controller
 {
     /**
-     * Store a new user directly with the provided data.
-     *
-     * @param array $data
-     * @return User
+     * Shows the user management page.
      */
-    public static function storeDirect(array $data): User
+    public function manage(): View|JsonResponse
     {
-        return User::create($data);
+        try {
+            $this->authorize('manage', Auth::user());
+
+            $users = User::orderBy('id', 'asc')->get();
+
+            return view('pages.users', ['users' => $users]);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 
     /**
-     * Show the list of all users.
+     * Shows the first 20 users using pagination.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $users = User::all();
-        return view('users.index', compact('users'));
+        try {
+            $users = User::where('visibility', true)->paginate(20);
+
+            $this->authorize('index', $users);
+
+            return response()->json($users);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 
     /**
-     * Show the details of a specific user.
+     * Shows the user page with the given id.
      */
-    public function show($id)
+    public function show(int $id): View|RedirectResponse|JsonResponse
     {
-        $user = User::findOrFail($id);
-        return view('users.show', compact('user'));
+        try {
+            $user = User::findOrFail($id);
+
+            $this->authorize('show', $user);
+
+            return view('pages.user', ['user' => $user]);
+        } catch (AuthorizationException) {
+            return redirect()->route('profile.show', ['id' => Auth::id()]);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
     }
 
     /**
-     * Update a user's information.
+     * Shows the edit user widget.
      */
-    public function update(Request $request, $id)
+    public function edit(int $id): View|JsonResponse
     {
-        $user = User::findOrFail($id);
-        $data = $request->validate([
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|min:5|max:20|unique:users,username,' . $id,
-            'email' => 'sometimes|string|max:255|email|unique:users,email,' . $id,
-        ]);
+        try {
+            $user = User::findOrFail($id);
 
-        $user->update($data);
+            $this->authorize('edit', $user);
 
-        return redirect()->back()->with('success', 'User updated successfully!');
+            return view('pages.edit-user', ['user' => $user]);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 
     /**
-     * Delete a user.
+     * Updates a user.
      */
-    public function destroy($id)
+    public function update(Request $request, $id): RedirectResponse|JsonResponse
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        try {
+            $user = User::findOrFail($id);
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+            $this->authorize('update', $user);
+
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+            ]);
+
+            if ($request->has('username') && $request->username !== $user->username) {
+                $validated['email'] = $request->validate([
+                    'username' => 'required|string|min:5|max:20|unique:users,username',
+                ])['username'];
+            }
+
+            if ($request->has('email') && $request->email !== $user->email) {
+                $validated['email'] = $request->validate([
+                    'email' => 'required|string|max:255|email|unique:users,email',
+                ])['email'];
+            }
+
+            if ($request->has('password') && $request->password !== null) {
+                $validated['password'] = $request->validate([
+                    'password' => 'required|string|max:255|confirmed',
+                ])['password'];
+            }
+
+            $user->fill($validated);
+
+            $user->save();
+
+            return redirect()->route('profile.show', ['id' => $user->id]);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
+    }
+
+    /**
+     * Deletes a user.
+     */
+    public function destroy(int $id): RedirectResponse|JsonResponse
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            $this->authorize('destroy', $user);
+
+            $user->delete();
+
+            return redirect()->route('/');
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 }

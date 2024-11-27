@@ -113,6 +113,14 @@ class ReviewController extends Controller
 
             $validated = $this->validateReview($request);
 
+            $exisingReview = Review::where('product_id', $validated['product_id'])
+                                   ->where('user_id', $validated['user_id'])
+                                   ->first();
+
+            if ($exisingReview) {
+                return response()->json(['error' => 'Review already exists'], 409);
+            }
+
             $review->fill($validated);
 
             $review->save();

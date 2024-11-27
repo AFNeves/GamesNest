@@ -3,30 +3,28 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Collection;
 
-class OrderPolicy
+class DiscountPolicy
 {
     /**
-     * Fetches an order.
+     * Fetches a discount.
      */
-    public function details(User $user, Order $order): bool
+    public function fetch(User $user): bool
     {
-        return (Auth::check() && Auth::user()->is_admin) || $order->user_id === $user->id;
+        return true;
     }
 
     /**
-     * Shows the users last order.
+     * Lists all discounts.
      */
-    public function lastOrder(User $user, Order $order): bool
+    public function list(User $user): bool
     {
-        return (Auth::check() && Auth::user()->is_admin) || $order->user_id === $user->id;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
-     * Shows the create order widget.
+     * Shows the create discount widget.
      */
     public function create(User $user): bool
     {
@@ -34,15 +32,15 @@ class OrderPolicy
     }
 
     /**
-     * Shows the edit order widget.
+     * Shows the edit discount widget.
      */
-    public function edit(User $user): bool
+    public function edit(User $user ): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
-     * Inserts a new order.
+     * Inserts a new discount.
      */
     public function store(User $user): bool
     {
@@ -50,9 +48,17 @@ class OrderPolicy
     }
 
     /**
-     * Updates an order.
+     * Updates a discount.
      */
     public function update(User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    /**
+     * Deletes a discount.
+     */
+    public function destroy(User $user): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }
