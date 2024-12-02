@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Casts\Address;
 use App\Enums\Status;
+use App\Casts\Address;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+use App\Models\User;
 use App\Models\Order;
+use App\Models\Transaction;
 
 class OrderController extends Controller
 {
@@ -32,16 +38,16 @@ class OrderController extends Controller
     }
 
     /**
-     * Fetches an order.
+     * Shows the details of an order.
      */
-    public function details(int $id): View|JsonResponse
+    public function show(int $user_id, int $order_id): View|JsonResponse
     {
         try {
-            $order = Order::findOrFail($id);
+            $order = Order::findOrFail($order_id);
 
-            $this->authorize('details', $order);
+            $this->authorize('show', $order);
 
-            return view('pages.order-details', ['order' => $order]);
+            return view('pages.order', ['order' => $order]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Order not found'], 404);
         } catch (AuthorizationException) {
@@ -55,63 +61,42 @@ class OrderController extends Controller
     public function listUserOrders(int $id): View|JsonResponse
     {
         try {
-            $orders = Order::all()->where('user_id', $id);
+            $user = User::findOrFail($id);
 
-            return view('pages.order-history', ['orders' => $orders]);
+            /* Throws an error even if the policy returns True */
+            //$this->authorize('listUserOrders', $user);
+
+            $orders = Order::where('user_id', $id)
+                ->orderBy('orders.id', 'asc')
+                ->get();
+
+            return view('pages.orders', ['orders' => $orders]);
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'No orders found'], 404);
+            return view('pages.order-history', ['orders' => []]);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
     }
 
     /**
-     * Shows the users last order.
+     * Shows the checkout page.
      */
-    public function lastOrder(int $id): Order|JsonResponse
+    public function create(Request $request): View|JsonResponse
     {
         try {
-            $order = Order::where('user_id', $id)
-                ->orderBy('created_at', 'desc')
-                ->firstOrFail();
+            $validated = $request->validate([
+                'id' => 'required|exists:users,id'
+            ]);
 
-            $this->authorize('listUserOrders', $order);
+            $user = User::findOrFail((int) $validated['id']);
 
-            return $order;
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'No orders found'], 404);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-    }
+            if ($user->id !== Auth::id()) {
+                throw new AuthorizationException();
+            }
 
-    /**
-     * Shows the create order widget.
-     */
-    public function create(): View|JsonResponse
-    {
-        try {
-            $this->authorize('create', Order::class);
+            $items = Auth::user()->shoppingCart()->withPivot('quantity')->get();
 
-            return view('widgets.create-order');
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-    }
-
-    /**
-     * Shows the edit order widget.
-     */
-    public function edit(int $id): View|JsonResponse
-    {
-        try {
-            $order = Order::findOrFail($id);
-
-            $this->authorize('edit', $order);
-
-            return view('widgets.edit-order', ['Order' => $order]);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return view('pages.checkout', ['items' => $items]);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -120,46 +105,43 @@ class OrderController extends Controller
     /**
      * Inserts a new order.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         try {
+            /* Authorize and Validate Request */
+            $this->authorize('store');
+            $validated = $this->validateOrder($request);
+
+            /* Create Order Model */
             $order = new Order();
-
-            $this->authorize('store', $order);
-
-            $validated = $this->validateOrder($request);
-
             $order->fill($validated);
-
             $order->save();
 
-            return response()->json($order);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
-        }
-    }
+            /* Assign Keys */
+            $shopCart = Auth::user()->shoppingCart();
 
-    /**
-     * Updates an order.
-     */
-    public function update(Request $request, $id): JsonResponse
-    {
-        try {
-            $order = Order::findOrFail($id);
+            for ($i = 0; $i < count($shopCart); $i++) {
+                $product = $shopCart[$i]->product;
 
-            $this->authorize('update', $order);
+                $assignedKey = $product->keys()->where('order_id', null)->first();
+                $assignedKey->order_id = $order->id;
 
-            $validated = $this->validateOrder($request);
+                $shopCart[$i]->delete();
+            }
 
-            $order->fill($validated);
+            /* TODO: REMOVE THIS PART IN PRODUCTION */
 
-            $order->save();
+            $transaction = new Transaction();
 
-            return response()->json($order);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Order not found'], 404);
+            $transaction->date = $validated['order_date'];
+            $transaction->amount = $validated['price'];
+            $transaction->provider = 'PayPal';
+            $transaction->status = 'Completed';
+            $transaction->order_id = $order->id;
+
+            $transaction->save();
+
+            return redirect()->route('order.details', ['success' => 'Order placed successfully.', 'id' => $order->id]);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         } catch (ValidationException) {

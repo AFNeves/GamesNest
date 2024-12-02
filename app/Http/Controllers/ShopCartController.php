@@ -2,144 +2,119 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+use App\Models\User;
+use App\Models\Product;
+use App\Models\ProductKey as Key;
 
 class ShopCartController extends Controller
 {
     /**
-     * Display the shopping cart page
-     * Retrieves cart items with product details, prices, and available stock
+     * Shows the shopping cart page.
      */
-    public function index()
+    public function show(int $id): View|JsonResponse
     {
-        // Complex SQL query to get cart items with all necessary information
-        $cartItems = DB::select(
-        'SELECT 
-            p.id AS product_id,
-            p.title,
-            p.price,
-            p.images,
-            sc.quantity,
-            -- Calculate final price considering any active discounts
-            COALESCE(p.price * (1 - d.percentage), p.price) AS final_price,
-            -- Subquery to count available (unassigned) keys for this product
-            (SELECT COUNT(*) FROM product_keys pk 
-             WHERE pk.product_id = p.id AND pk.order_id IS NULL) AS available_stock
-        FROM shopping_cart sc
-        JOIN products p ON sc.product_id = p.id
-        LEFT JOIN discounts d ON p.discount_id = d.id
-        WHERE sc.user_id = ?',
-         [Auth::id()]
-        );
-        // Convert to collection for easier manipulation in the view
-        return view('pages.shoppingcart', ['cartItems' => collect($cartItems)]);
+        try {
+            $user = User::findOrFail($id);
+
+            $this->authorize('show', $user);
+
+            $items = $user->shoppingCart()->withPivot('quantity')->get();
+
+            return view('pages.shopping-cart', ['user' => $user, 'items' => $items]);
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'Order not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 
     /**
-     * Update item quantity in cart
-     * Handles both increasing and decreasing quantity
+     * Inserts a new product into the shopping cart.
      */
-    public function update(Request $request, $productId)
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
-        $action = $request->input('action');
-        $cart = DB::table('shopping_cart')
-            ->where('user_id', Auth::id())
-            ->where('product_id', $productId);
-
-        // Increment or decrement based on button clicked
-        if ($action === 'increase') {
-            $cart->increment('quantity');
-        } else {
-            $currentQuantity = $cart->value('quantity');
-            // If quantity is 1, remove the item
-            if ($currentQuantity <= 1) {
-                $cart->delete();
-            } else {
-                $cart->decrement('quantity');
-            }
-        }
-        return redirect()->back();
-    }
-
-    /**
-     * Remove item from cart
-     * Deletes the entire cart entry for this product
-     */
-    public function remove($productId)
-    {
-        DB::table('shopping_cart')
-            ->where('user_id', Auth::id())
-            ->where('product_id', $productId)
-            ->delete();
-
-        return redirect()->back();
-    }
-
-    /**
-     * Add item to cart
-     * Checks stock availability before adding
-     */
-    public function addToCart(Request $request, $productId)
-    {
-        // Check available stock
-        $availableStock = DB::select('
-            SELECT COUNT(*) as count 
-            FROM product_keys 
-            WHERE product_id = ? AND order_id IS NULL', 
-            [$productId]
-        )[0]->count;
-
-        // Get current cart quantity for this product
-        $currentCartQuantity = 0;
-        if (Auth::check()) {
-            $currentCartQuantity = DB::table('shopping_cart')
-                ->where('user_id', Auth::id())
-                ->where('product_id', $productId)
-                ->value('quantity') ?? 0;
-        }
-
-        // Check if adding one more would exceed available stock
-        if ($currentCartQuantity + 1 > $availableStock) {
-            return redirect()->back()->with('error', 'Not enough stock available.');
-        }
-
-        // Guest user handling - store cart in session
-        if (!Auth::check()) {
-            $cart = session()->get('cart', []);
-            
-            if (isset($cart[$productId])) {
-                $cart[$productId]['quantity']++;
-            } else {
-                $cart[$productId] = [
-                    'quantity' => 1
-                ];
-            }
-            
-            session()->put('cart', $cart);
-            return redirect()->back()->with('success', 'Product added to cart!');
-        }
-
-        // Logged-in user handling - store in database
-        $existingItem = DB::table('shopping_cart')
-            ->where('user_id', Auth::id())
-            ->where('product_id', $productId)
-            ->first();
-
-        if ($existingItem) {
-            DB::table('shopping_cart')
-                ->where('user_id', Auth::id())
-                ->where('product_id', $productId)
-                ->increment('quantity');
-        } else {
-            DB::table('shopping_cart')->insert([
-                'user_id' => Auth::id(),
-                'product_id' => $productId,
-                'quantity' => 1,
+        try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id'
             ]);
-        }
 
-        return redirect()->back()->with('success', 'Product added to cart!');
+            $product = Product::findOrFail((int) $validated['product_id']);
+
+            if(!$product->shoppingCarts()->where('user_id', Auth::id())->exists()) {
+                $product->shoppingCarts()->attach(Auth::id(), ['quantity' => 1]);
+            }
+
+            return redirect()->route('cart.show', ['id' => Auth::id()]); /* TODO: TO IMPLEMENT AJAX */
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
+    }
+
+    /**
+     * Updates the quantity of a product in the shopping cart.
+     */
+    public function update(Request $request): RedirectResponse|JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'product_id' => 'required|integer',
+                'quantity' => 'required|integer|min:1'
+            ]);
+
+            $product = Product::findOrFail((int) $validated['product_id']);
+
+            $item = $product->shoppingCarts()->where('user_id', Auth::id())->firstOrFail();
+
+            $this->authorize('update', $item);
+
+            $stock = Key::where('product_id', $product->id)->where('order_id', '!=', NULL)->count();
+
+            if($stock < $validated['quantity']) {
+                return response()->json(['error' => 'Not enough stock'], 400);
+            }
+
+            $product->shoppingCarts()->updateExistingPivot(Auth::id(), ['quantity' => $validated['quantity']]);
+
+            return redirect()->route('cart.show', ['id' => Auth::id()]); /* TODO: TO IMPLEMENT AJAX */
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'Product not found'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Validation failed'], 400);
+        }
+    }
+
+    /**
+     * Deletes an item from the shopping cart.
+     */
+    public function destroy(Request $request): RedirectResponse|JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id'
+            ]);
+
+            $product = Product::findOrFail((int) $validated['product_id']);
+
+            $product->shoppingCarts()->detach(Auth::id());
+
+            return redirect()->route('cart.show', ['id' => Auth::id()]); /* TODO: TO IMPLEMENT AJAX */
+        } catch (ModelNotFoundException) {
+            return response()->json(['error' => 'Product doesn\'t exist'], 404);
+        } catch (AuthorizationException) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
     }
 }

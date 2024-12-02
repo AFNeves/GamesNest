@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\User;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 use App\Models\ProductKey as Key;
+use function Laravel\Prompts\table;
 
 class KeyController extends Controller
 {
@@ -47,12 +50,17 @@ class KeyController extends Controller
     /**
      * Lists all keys.
      */
-    public function list(User $user): View|JsonResponse
+    public function list(int $id): View|JsonResponse
     {
         try {
-            $keys = $user->productKeys();
+            $keys = Key::whereNotNull('order_id')
+                ->join('orders', 'product_keys.order_id', '=', 'orders.id')
+                ->join('products', 'product_keys.product_id', '=', 'products.id')
+                ->select('product_keys.key', 'orders.id', 'orders.deliver_date', 'products.title', 'products.price', 'products.platform', 'products.region')
+                ->orderBy('orders.id', 'asc')
+                ->get();
 
-            return view('pages.key-inventory', ['Keys' => $keys]);
+            return view('pages.key-inventory', ['keys' => $keys]);
         } catch (ModelNotFoundException) {
             return view('pages.key-inventory', ['Keys' => []]);
         } catch (AuthorizationException) {
