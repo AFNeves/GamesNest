@@ -42,14 +42,14 @@ class ProductController extends Controller
     /**
      * Shows the first 10 products using pagination.
      */
-    public function index(): JsonResponse
+    public function index(): View|JsonResponse
     {
         try {
-            $products = Product::where('visibility', true)->paginate(10);
+            $products = Product::where('visibility', true)
+                ->orderBy('id', 'asc')
+                ->paginate(10);
 
-            $this->authorize('index', $products);
-
-            return response()->json($products);
+            return view('pages.products', ['products' => $products]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
@@ -137,7 +137,7 @@ class ProductController extends Controller
 
             $products = $this->ftsearch($query['query']);
 
-            return view('pages.search', ['products' => $products]);
+            return view('pages.products', ['products' => $products]);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
         } catch (ValidationException) {

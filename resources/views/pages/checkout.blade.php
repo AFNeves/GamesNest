@@ -1,60 +1,33 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Checkout</h1>
-    
-    <div class="checkout-container">
-        <div class="order-summary">
-            <h2>Order Summary</h2>
-            @foreach($cartItems as $item)
-            <div class="order-item">
-                <span>{{ $item->title }} (x{{ $item->quantity }})</span>
-                <span>€{{ number_format($item->final_price * $item->quantity, 2) }}</span>
-            </div>
-            @endforeach
-            
-            <div class="order-total">
-                <strong>Total:</strong>
-                <strong>€{{ number_format($total, 2) }}</strong>
-            </div>
-        </div>
-
-        <form action="{{ route('checkout.process') }}" method="POST" class="checkout-form">
+    <div class="flex flex-grow justify-between w-full space-x-4">
+        <form action="{{ route('checkout.action') }}" method="POST" class="flex flex-col flex-grow items-center justify-start p-6 w-1/3 bg-gray-600 rounded-lg">
             @csrf
-            
-            <div class="form-group">
-                <label for="address">Shipping Address</label>
-                <input type="text" id="address" name="address" required
-                       class="form-control @error('address') is-invalid @enderror"
-                       value="{{ old('address') }}">
-                @error('address')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
+
+            <div class="space-y-4 whitespace-nowrap w-full mt-2">
+                <span class="text-2xl px-0.5">Shipping Address</span>
+
+                <input type="text" name="address_line" class="address-input w-full" placeholder="Address Line" value="{{ old('address_line') }}" required />
+
+                <input type="text" name="district" class="address-input w-full" placeholder="State" value="{{ old('district') }}" required />
+
+                <div class="flex justify-between w-full space-x-4">
+                    <input type="text" name="city" class="address-input w-full" placeholder="City" value="{{ old('city') }}" required />
+
+                    <input type="text" name="postal_code" class="address-input w-1/2" placeholder="Postal Code" value="{{ old('postal_code') }}" required />
+                </div>
+
+                <input type="text" name="country" class="address-input w-full" placeholder="Country" value="{{ old('country') }}" required />
+
+                <input type="tel" name="phone_number" class="address-input w-full" placeholder="Phone Number" value="{{ old('phone_number') }}" required />
             </div>
 
-            <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" id="city" name="city" required
-                       class="form-control @error('city') is-invalid @enderror"
-                       value="{{ old('city') }}">
-                @error('city')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
-            </div>
+            <hr>
 
-            <div class="form-group">
-                <label for="postal_code">Postal Code</label>
-                <input type="text" id="postal_code" name="postal_code" required
-                       class="form-control @error('postal_code') is-invalid @enderror"
-                       value="{{ old('postal_code') }}">
-                @error('postal_code')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
-            </div>
+            <div class="space-y-4 whitespace-nowrap w-full mt-6">
+                <span class="text-2xl px-0.5">Payment Information</span>
 
-            <div class="form-group">
-                <label>Payment Method</label>
                 <div class="payment-options">
                     <label>
                         <input type="radio" name="payment_method" value="credit_card" required>
@@ -65,59 +38,35 @@
                         PayPal
                     </label>
                 </div>
-                @error('payment_method')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
             </div>
 
-            <button type="submit" class="btn btn-primary">Place Order</button>
+            @if ($errors->any())
+                <div class="text-red-500 text-base m-4">
+                    {{ $errors->first() }}
+                </div>
+            @endif
         </form>
+
+        <div class="flex flex-col items-center justify-between px-6 py-12 w-1/3 bg-gray-600 rounded-xl space-y-8">
+            <div class="flex flex-col w-full space-y-8">
+                <span class="text-3xl self-center">Order Summary</span>
+                @foreach($items as $item)
+                    <div class="flex flex-col w-full space-y-8">
+                        <span>{{ $item->title }}</span>
+                        <div class="flex justify-between">
+                            <span>(x{{ $item->pivot->quantity }})</span>
+                            <span>€{{ number_format($item->price * $item->pivot->quantity, 2) }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="flex flex-col items-center justify-center w-full space-y-4">
+                <span class="text-3xl">Total: {{ $items->sum('price') }} €</span>
+                <form action="{{ route('checkout.action') }}" method="GET">
+                    <input type="hidden" name="id" value="{{ Auth::id() }}">
+                    <button type="submit" class="bg-green-500 rounded-lg p-2" disabled>Place Order</button>
+                </form>
+            </div>
+        </div>
     </div>
-</div>
-
-<style>
-.checkout-container {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 2rem auto;
-}
-
-.order-summary {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-}
-
-.order-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 0.5rem 0;
-}
-
-.order-total {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 2px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-}
-
-.checkout-form {
-    padding: 1.5rem;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.payment-options {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-}
-</style>
 @endsection

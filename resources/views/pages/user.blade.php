@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+@section('header-context')
+    <div class="flex items-center justify-between">
+        <a href="{{ route('logout') }}" class="header-button">Logout</a>
+    </div>
+@endsection
+
 @section('content')
     <div class="flex flex-col flex-grow space-y-8">
         <div class="flex justify-center items-center">
@@ -20,8 +26,6 @@
             <a href="{{ route('order.history', ['id' => $user->id]) }}" class="hover:underline">Orders History</a>
             <a href="{{ route('key.inventory', ['id' => $user->id]) }}" class="hover:underline">Key Inventory</a>
         @endif
-
-        <a href="{{ route('logout') }}" class="hover:underline">Logout</a>
 
         <hr>
 
