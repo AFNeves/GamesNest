@@ -29,6 +29,8 @@ Route::controller(RegisterController::class)->group(function () {
 // Products
 Route::controller(ProductController::class)->group(function () {
     Route::get('/product/{id}', 'show')->name('product');
+    Route::get('/product/{id}/edit', 'edit')->name('product.edit');
+    Route::post('/product/{id}/edit', 'update')->name('product.update');
     Route::post('/search', 'search')->name('search');
     Route::get('/search', 'display')->name('display_search');
 });

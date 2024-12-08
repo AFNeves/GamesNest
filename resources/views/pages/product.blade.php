@@ -28,6 +28,11 @@
 
             <div class="flex flex-col flex-grow">
                 <div class="flex justify-between items-center py-4">
+                    @if (Auth::user()->is_admin)
+                        <a href="{{ route('product.edit', ['id'=>$product->id]) }}" class="py-2 mr-6">
+                            <img src="{{ asset("/images/icons/edit.svg") }}" class="w-12 h-12" alt="Logout"/>
+                        </a>
+                    @endif
                     <span class="text-3xl">{{ $product->title }}</span>
                     <form method="POST" action="{{ route('cart.store') }}" class="flex items-center space-x-4">
                         @csrf

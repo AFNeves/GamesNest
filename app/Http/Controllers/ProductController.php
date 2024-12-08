@@ -169,7 +169,11 @@ class ProductController extends Controller
 
             $this->authorize('edit', $product);
 
-            return view('widgets.edit-product', ['product' => $product]);
+            $platforms = Platform::cases();
+            $regions = Region::cases();
+            $types = ProductType::cases();
+
+            return view('pages.edit-product', ['product' => $product, 'platforms' => $platforms, 'regions' => $regions, 'types' => $types]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
@@ -204,20 +208,27 @@ class ProductController extends Controller
     /**
      * Updates a product.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, $id): RedirectResponse|JsonResponse
     {
         try {
             $product = Product::findOrFail($id);
 
             $this->authorize('update', $product);
 
-            $validated = $this->validateProduct($request);
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'platform' => 'required|string|max:255',
+                'region' => 'required|string|max:255',
+                'type' => 'required|string|max:255',
+                'price' => 'required|numeric',
+            ]);
 
             $product->fill($validated);
 
             $product->save();
 
-            return response()->json($product);
+            return redirect()->route('product', ['id' => $product->id]);
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
