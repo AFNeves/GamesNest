@@ -59,6 +59,12 @@ class RegisterController extends Controller
 
         $user = User::create($data);
 
+        $userDirectory = public_path('images/users/' . $user->id);
+        if (!file_exists($userDirectory)) {
+            mkdir($userDirectory);
+            copy(public_path('images/users/default.png'), $userDirectory . '/default.png');
+        }
+
         Auth::login($user);
 
         $request->session()->regenerate();

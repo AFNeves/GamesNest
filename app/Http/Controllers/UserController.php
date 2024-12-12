@@ -95,10 +95,17 @@ class UserController extends Controller
 
             $this->authorize('update', $user);
 
-            $validated = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-            ]);
+            if ($request->has('first_name') && $request->first_name !== $user->first_name) {
+                $validated['first_name'] = $request->validate([
+                    'first_name' => 'required|string|max:255',
+                ])['first_name'];
+            }
+
+            if ($request->has('last_name') && $request->last_name !== $user->last_name) {
+                $validated['last_name'] = $request->validate([
+                    'last_name' => 'required|string|max:255',
+                ])['last_name'];
+            }
 
             if ($request->has('username') && $request->username !== $user->username) {
                 $validated['email'] = $request->validate([
@@ -118,6 +125,18 @@ class UserController extends Controller
                 ])['password'];
             }
 
+            if($request->hasFile('profile_picture') && $request->profile_picture !== null) {
+                $request->validate([
+                    'profile_picture' => 'required|image|max:6144',
+                ])['profile_picture'];
+
+                $imageName = time() . '.' . $request->profile_picture->extension();
+
+                $request->profile_picture->move(public_path('images/users/' . $user->id), $imageName);
+
+                $validated['profile_picture'] = $imageName;
+            }
+
             $user->fill($validated);
 
             $user->save();
@@ -127,8 +146,8 @@ class UserController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         } catch (AuthorizationException) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'messages' => $e->errors()], 400);
         }
     }
 

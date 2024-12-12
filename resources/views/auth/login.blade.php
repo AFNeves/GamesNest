@@ -6,7 +6,7 @@
             @csrf
 
             <div class="space-y-8 whitespace-nowrap w-full">
-                <input type="email" name="email" class="auth-form-input" placeholder="Email" value="{{ old('email') }}" required />
+                <input type="text" name="username" class="auth-form-input" placeholder="Email" value="{{ old('email') }}" required />
 
                 <input type="password" name="password" class="auth-form-input" placeholder="Password" required />
             </div>
