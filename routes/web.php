@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopCartController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\WishlistController;
 
 // Home
 Route::get('/', [ProductController::class, 'index']);
@@ -52,6 +53,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/cart', 'store')->name('cart.store');
         Route::put('/cart', 'update')->name('cart.update');
         Route::delete('/cart', 'destroy')->name('cart.destroy');
+    });
+
+    Route::controller(WishlistController::class)->group(function () {
+        Route::get('/wishlist/{id}', 'show')->name('wishlist.show');
+        Route::post('/wishlist', 'store')->name('wishlist.store');
+        Route::delete('/wishlist', 'destroy')->name('wishlist.destroy');
     });
 
     // Orders
