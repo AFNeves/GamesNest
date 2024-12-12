@@ -54,7 +54,7 @@ CREATE TYPE region AS ENUM('Global', 'Europe', 'North America', 'South America',
 
 CREATE TYPE status AS ENUM ('Completed', 'Rejected', 'Waiting Payment', 'Waiting Key', 'Waiting Delivery', 'Delivered');
 
-CREATE TYPE platform AS ENUM ('Steam','Xbox Live', 'Ubisoft Connect', 'Origin', 'Nintendo', 'PSN', 'Epic Games', 'Rockstar Games Launcher', 'Windows Store');
+CREATE TYPE platform AS ENUM ('Steam', 'Xbox Live', 'Ubisoft Connect', 'Origin', 'Nintendo', 'PSN', 'Epic Games', 'Rockstar Games Launcher', 'Windows Store');
 
 -----------------------------------------
 -- CREATE TABLES

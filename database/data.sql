@@ -1,36 +1,67 @@
 SET search_path TO lbaw24105;
 
 -----------------------------------------
--- DATA INSERTION
+-- USERS TABLE
 -----------------------------------------
 
-SET search_path TO lbaw24105;
+-- Anonymous Account
+INSERT INTO users(first_name, last_name, username, email, password, profile_picture, is_admin)
+VALUES
+    ('John', 'Doe', 'johndoe', 'johndoe@lost.com', '$2y$10$70JFRa.wylskSh6qKhbhKeYmUW4cSlvMmw39FTKLTU.Qks5Ul3zv.', 'default.png', false); -- MysteriousMystery
 
+-- Admin Accounts
+INSERT INTO users(first_name, last_name, username, email, password, profile_picture, is_admin)
+VALUES
+    -- Demo Admin Account
+    ('Linus', 'Torvalds', 'TuxCommander', 'linus@opensource.org', '$2y$10$K9kPHQBS5WmzNDHE5SBbMeTU6tBD79kSD.YPkzizjHh4w3pqUGOti', 'linus.jpg', true), -- KernelPanic!123
+    -- Dev Team Accounts
+    ('Afonso', 'Neves', 'ANeves', 'up202108884@up.pt', '$2y$10$pfYAIlSwza5FmEtG2ew/au2au31xcCkJ7S4MfF.TYUcKUyhrhH8dO', 'image.png', true), -- afonsoneves123
+    ('Andre', 'Pinto', 'APinto', 'up202108856@up.pt', '$2y$10$20iHYeHXrA5kiwYmEmXiUuaUZAtbI5AjyZ1E8jnojBOEb3qkxPzd6', 'image.png', true), -- andrepinto123
+    ('Beatriz', 'Oliveira', 'BOliveira', 'up202204353@up.pt', '$2y$10$WmvpTW4v4NI5bfhP7oNgU..ke4z2YuYle64U0tIcquzYC13gheoAi', 'image.png', true), -- beatrizoliveira123
+    ('Victor', 'Velasco', 'VVelasco', 'up202401431@up.pt', '$2y$10$oPoXLydvoUT0TI0dbjGXs.7du6ufib4YtTEL9Zd08U0eeOkRdEpU2', 'image.png', true); -- victorvelasco123
+
+-- Client Dummy Accounts
 INSERT INTO users(first_name, last_name, username, email, password, is_admin)
 VALUES
-    ('John', 'Doe', 'johndoe', 'johndoe@lost.com', '$2y$10$70JFRa.wylskSh6qKhbhKeYmUW4cSlvMmw39FTKLTU.Qks5Ul3zv.', false),
-    ('Afonso', 'Neves', 'ANeves', 'up202108884@up.pt', '$2y$10$pfYAIlSwza5FmEtG2ew/au2au31xcCkJ7S4MfF.TYUcKUyhrhH8dO', true),
-    ('Andre', 'Pinto', 'APinto', 'up202108856@up.pt', '$2y$10$20iHYeHXrA5kiwYmEmXiUuaUZAtbI5AjyZ1E8jnojBOEb3qkxPzd6', true),
-    ('Beatriz', 'Oliveira', 'BOliveira', 'up202204353@up.pt', '$2y$10$WmvpTW4v4NI5bfhP7oNgU..ke4z2YuYle64U0tIcquzYC13gheoAi', true),
-    ('Victor', 'Velasco', 'VVelasco', 'up202401431@up.pt', '$2y$10$p3.VZLQEVWLGWHkSLQJMOuRVGP./X59APOfPaTkbH4gzwDIsCLujK', true),
-    ('Tiago', 'Cunha', 'TCunhaAdmin', 'tiagocunha@admin.com', '$2y$10$gdAcxKsg8DgNHre2udlJceA4rG8iQu1ZyRDubrduelXZaJKystcu6', true), -- FETiago24CunhaUP
-    ('Phyllys', 'Sweatland', 'psweatland60808', 'phyllys.sweatland@bellsouth.net', 'O7XuL!*71*!T8!*', false),
-    ('Jena', 'Hush', 'jhush56742', 'jena.hush@hotmail.co.uk', '53*K#2o!%!#6', false),
-    ('Sam', 'Beedon', 'sbeedon23501', 'sam.beedon@yahoo.com', '*y*&!k4$w1*N*4', false),
-    ('Prissie', 'Novic', 'pnovic28758', 'prissie.novic@yahoo.com', '*%d4*!!#J#V!', false),
-    ('Lorrie', 'Bartolommeo', 'lbartolommeo12345', 'lorrie.bartolommeo@example.com', '1!#*!#*!#*!#', false),
-    ('James', 'Carter', 'jcarter21', 'james.c4rter@gmail.com', 'tobysplash82', false),
-    ('Leroi', 'Naismith', 'lnaismith55963', 'leroi.naismith@gmail.com', 'r!n!*u0!U%4!', false),
-    ('Skye', 'Tune', 'stune52338', 'skye.tune@hotmail.com', 'q&!2!lv*!&*!!', false),
-    ('Tiago', 'Cunha', 'TCunhaClient', 'tiagocunha@client.com', '$2y$10$gdAcxKsg8DgNHre2udlJceA4rG8iQu1ZyRDubrduelXZaJKystcu6', false), -- FETiago24CunhaUP
-    ('Sheffield', 'Errington', 'serrington44687', 'sheffield.errington@hotmail.com', '5!4*!*0!', false),
-    ('Obadias', 'Shortt', 'oshortt18768', 'obadias.shortt@yahoo.com', '41%ze!X9', false),
-    ('Iver', 'Lynn', 'ilynn42682', 'iver.lynn@yahoo.com', '9Y*s!c*Z#$$p', false);
+    -- Dummy Accounts
+    ('Phyllys', 'Sweatland', 'psweatland60808', 'phyllys.sweatland@bellsouth.net', '$2b$10$CHBqTF7bJj0Y/WmmKHvjg.TeHlGnc1nSwqvjUHup1nlpx/mhH55Jy', false),
+    ('Jena', 'Hush', 'jhush56742', 'jena.hush@hotmail.co.uk', '$2b$10$qc6xh/PU1VJb1c/3i2W.K.iSVN6FoIu4xmQTkGSUmFT3LCxWwIXpy', false),
+    ('Sam', 'Beedon', 'sbeedon23501', 'sam.beedon@yahoo.com', '$2b$10$2hROvPoj7XlYa1TiD7Mq1Oj3YNT3PJgH5W5BcL6t/N6BIsb9pE2hS', false),
+    ('Prissie', 'Novic', 'pnovic28758', 'prissie.novic@yahoo.com', '$2b$10$vIk3vr4yoG/vmwIiruTP0uQH0meLJcr7M6hHfdxB/K2hsuIY9/5eO', false),
+    ('Lorrie', 'Bartolommeo', 'lbartolommeo12345', 'lorrie.bartolommeo@example.com', '$2b$10$yGOaL3jPEMRMJF2KQo37bOb0mbYzVdEG7mva7vgkQzvjzxDxui5K.', false),
+    ('James', 'Carter', 'jcarter21', 'james.c4rter@gmail.com', '$2b$10$W/3mUMvsBZYDyjt273MoEuJy1TOPc.t7lWZ067O1vim1FvXfygNC2', false),
+    ('Leroi', 'Naismith', 'lnaismith55963', 'leroi.naismith@gmail.com', '$2b$10$8scs2WZeg8.MP/wy.SR7pepkc16IyjR8ANd/KY2uIJF4LNnRSNryG', false),
+    ('Skye', 'Tune', 'stune52338', 'skye.tune@hotmail.com', '$2b$10$RH7Pg2c30L9frp2kO/IdDO3AFiFJlLQLnKNBRBIQlM3wY2j5TfEka', false),
+    ('Sheffield', 'Errington', 'serrington44687', 'sheffield.errington@hotmail.com', '$2b$10$OoNmWPaMGhbbrXRrXLKTyetSuvawhQUfpVLDBzlSCU0XV7px1/6sK', false),
+    ('Obadias', 'Shortt', 'oshortt18768', 'obadias.shortt@yahoo.com', '$2b$10$J7lhcdj4L75J2E.pjpg3NutG9DNE.nB0sOUZiFXgYogByqQf5Dxdm', false);
 
-UPDATE users SET profile_picture = 'p.jpg' WHERE TRUE;
-UPDATE users SET profile_picture = 'images.jpeg' WHERE username = 'ANeves';
-UPDATE users SET profile_picture = 'uporto.png' WHERE username = 'TCunhaAdmin';
-UPDATE users SET profile_picture = 'uporto.png' WHERE username = 'TCunhaClient';
+-- Demo Client Accounts
+INSERT INTO users(first_name, last_name, username, email, password, profile_picture, is_admin)
+VALUES
+    -- Demo Client Accounts
+    ('Steve', 'Jobs', 'AppleTree', 'jobs@apple.com', '$2y$10$Sd3HXq1ETazuxYq7lr4oY.2OJhNtIH0n2R98uM1ioWVhfoau6rRUu', 'jobs.jpg', false), -- 1MoreThing...
+    ('Elon', 'Musk', 'MusketeerX', 'elon@tesla.com', '$2y$10$2aNmjMiugiLSf7SLrkMK.OBBWRPhYr5wOpklo5.lrVcV1s.oaUSV2', 'elon.jpg', false), -- D0geC01nToDaMoon
+    ('Bill', 'Gates', 'MacroGates', 'bill@microsoft.com', '$2y$10$qtx4mK4LtK/SdVKjVkdkr.mYPPYJZDnYC3byzddPECgP13KFNzLmW', 'bill.jpg', false), -- W1nd0ws98?NoThanks
+    ('Mark', 'Zuckerberg', 'ZuckerBro', 'zucker@meta.com', '$2y$10$m7d1calZD.QZ1kEj6goPd.OQdfiov/4HJRv6zITJbk2qY3fTvqKqm', 'zucker.jpg', false); -- MetaVerse4Life$$
+
+-- More Client Dummy Accounts
+INSERT INTO users(first_name, last_name, username, email, password, is_admin)
+VALUES
+    -- More Dummy Accounts
+    ('Iver', 'Lynn', 'ilynn42682', 'iver.lynn@yahoo.com', '$2b$10$ayT/y8zxuTJ9.UKNp7mDReLRhKfjzjIZObt536Pq4KdgjStN9kSoq', false),
+    ('Arlena', 'Pomery', 'apomery42926', 'arlena.pomery@hotmail.fr', '$2b$10$2vKWBRYj6G9tyKMqJ.nzROA6dCJ4DEWcyHvy8Kk3VmcQSbU7YNzaS', false),
+    ('Waylin', 'Grindell', 'wgrindell22206', 'waylin.grindell@yahoo.com', '$2b$10$f6RlG8KgaEUAdiCOHgZXkOf29MxQzxXAEBtqtK7hA7a1pbxNJM1.S', false),
+    ('Branden', 'Fraser', 'bfraser27731', 'branden.fraser@hotmail.com', '$2b$10$VdAT.hhhepqiPLP45k9W/uhGrQGoh0tjKdHHxnNoYmJwoWgK5OhMm', false),
+    ('Isidor', 'Johnsson', 'ijohnsson5327', 'isidor.johnsson@gmail.com', '$2b$10$HiXizS3MqYIVAv8Qd2..h.Q8DqXNPx9tEpUbql5DGtnX1LSK/b2Oa', false),
+    ('Retha', 'Baudino', 'rbaudino58988', 'retha.baudino@gmail.com', '$2b$10$3N3qduK9HQaFGrwhb.GIu.3Vkxp5nVv.f9TasgYtUUx23STP/JrqK', false),
+    ('Charmaine', 'Bircher', 'cbircher46633', 'charmaine.bircher@hotmail.com', '$2b$10$nz500sjM3Zo3n5i1iMsVpOI5/AXYhZtS/YfFw45TEQY0UPKpi5NeG', false),
+    ('Bink', 'Cuardall', 'bcuardall4821', 'bink.cuardall@gmail.com', '$2b$10$rh6b1K1NmVWoeiq0RY.Mk.3zprY/Xjy/mq.wtzvdj6P0BfajcGAYG', false),
+    ('Vinnie', 'Tejero', 'vtejero64434', 'vinnie.tejero@gmail.com', '$2b$10$dHkgY.6expfQ99khJ3LRUOjVy2GS6nfs2mEJNYZQd0HyBtfmE4EXe', false),
+    ('Marielle', 'Leggatt', 'mleggatt9891', 'marielle.leggatt@yahoo.com.br', '$2b$10$cX4Fz4vKiOfXplfysabaLef46RN02KLo6PzvF2ixLrDPvDI/WMHGa', false);
+
+-----------------------------------------
+-- REST OF THE TABLES
+-----------------------------------------
 
 INSERT INTO categories(name, description)
 VALUES
@@ -77,9 +108,9 @@ VALUES
 
 INSERT INTO products(title,description, images, type, platform, region, price, rating, visibility)
 VALUES
-    ('Fifa 25 Steam Europe', 'EA SPORTS FC™ 25 gives you more ways to win for the club. Team up with friends in your favourite modes with the new 5v5 Rush, and manage your club to victory as FC IQ delivers more tactical control than ever before.', 'images/products/1', 'Game','Steam', 'Europe',49.99, 4.2, TRUE),
+    ('Fifa 25 Steam Europe', 'EA SPORTS FC™ 25 gives you more ways to win for the club. Team up with friends in your favourite modes with the new 5v5 Rush, and manage your club to victory as FC IQ delivers more tactical control than ever before.', 'images/products/1', 'Game', 'Steam', 'Europe',49.99, 4.2, TRUE),
     ('Terraria Steam Europe', 'Dig, Fight, Explore, Build: The very world is at your fingertips as you fight for survival, fortune, and glory. Will you delve deep into cavernous expanses in search of treasure and raw materials with which to craft ever-evolving gear, machinery, and aesthetics? Perhaps you will choose instead to seek out ever-greater foes to test your mettle in combat? Maybe you will decide to construct your own city to house the host of mysterious allies you may encounter along your travels?
-', 'images/products/2', 'Game','Steam', 'Europe',14.99, 4.2, TRUE),
+', 'images/products/2', 'Game', 'Steam', 'Europe',14.99, 4.2, TRUE),
     ('PICO PARK Steam Europe', 'PICO PARK is a cooperaive local/online multiplayer action puzzle, The rule is quite simple: "Get all the keys and get to the goal and clear", but all 48 levels have special gimmicks designed specifically for multiplayer. At most levels, different gimmicks will appear as you move forward, and you will need to consult with your peers and think about new ways to cooperate.', 'images/products/3', 'Game', 'Steam', 'Europe', 4.99, 5, TRUE),
     ('Cities Skylines II Steam Europe', 'Raise a city from the ground up and transform it into a thriving metropolis with the most realistic city builder ever. Push your creativity and problem-solving to build on a scale youve never experienced. With deep simulation and a living economy, this is world-building without limits. ', 'images/products/4', 'Game', 'Steam', 'Europe', 69.99, 3.2, TRUE),
     ('Outer Wilds Steam Europe', 'Named Game of the Year 2019 by Giant Bomb, Polygon, Eurogamer, and The Guardian, Outer Wilds is a critically-acclaimed and award-winning open world mystery about a solar system trapped in an endless time loop. ', 'images/products/5', 'Game', 'Steam', 'Europe', 13.99, 5, TRUE),
