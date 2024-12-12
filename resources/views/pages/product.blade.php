@@ -32,6 +32,23 @@
                         <a href="{{ route('product.edit', ['id'=>$product->id]) }}" class="py-2 mr-6">
                             <img src="{{ asset("/images/icons/edit.svg") }}" class="w-12 h-12" alt="Logout"/>
                         </a>
+                    @else
+                        @if($product->wishlists()->where('user_id', Auth::id())->exists())
+                            <form method="POST" action="{{ route('wishlist.destroy') }}" class="flex items-center space-x-4">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <button> <img src="{{ asset("/images/icons/closed_heart.svg") }}" class="w-12 h-12" alt="Remove from Wishlist"/>
+                                </button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('wishlist.store') }}" class="flex items-center space-x-4">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <button> <img src="{{ asset("/images/icons/open_heart.svg") }}" class="w-12 h-12" alt="Add to Wishlist"/>
+                                </button>
+                            </form>
+                        @endif
                     @endif
                     <span class="text-3xl">{{ $product->title }}</span>
                     <form method="POST" action="{{ route('cart.store') }}" class="flex items-center space-x-4">
