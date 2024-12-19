@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -42,14 +43,38 @@ class ProductController extends Controller
     /**
      * Shows the first 10 products using pagination.
      */
-    public function index(): View|JsonResponse
+    public function index(Request $request): View|JsonResponse //CATEGORIES NOT WORKING SINCE THERE ARE NO GAMES RELATED TO CATEGORIES ON THE DATABASE
     {
         try {
+            $selectedCats = $request->input('categories', []);
+            $selectedPlatforms = $request->input('platforms', []);
+            $selectedRegions = $request->input('regions', []);
+            $selectedTypes = $request->input('types', []);
+
+            if(empty($selectedCats) and empty($selectedPlatforms) and empty($selectedRegions) and empty($selectedTypes)) {
+                $products = Product::where('visibility', true)
+                    ->orderBy('id', 'asc')
+                    ->paginate(10);
+
+                return view('pages.products', ['products' => $products]);
+            }
+            if($selectedRegions === []){
+                $selectedRegions = Region::cases();
+            }
+            if($selectedPlatforms === []){
+                $selectedPlatforms = Platform::cases();
+            }
+            if($selectedTypes === []){
+                $selectedTypes = ProductType::cases();
+            }
             $products = Product::where('visibility', true)
+                ->whereIn('region', $selectedRegions)
+                ->whereIn('platform', $selectedPlatforms)
+                ->whereIn('type', $selectedTypes)
                 ->orderBy('id', 'asc')
                 ->paginate(10);
-
             return view('pages.products', ['products' => $products]);
+
         } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
