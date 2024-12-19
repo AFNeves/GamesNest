@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
@@ -43,7 +44,7 @@ class ProductController extends Controller
     /**
      * Shows the first 10 products using pagination.
      */
-    public function index(Request $request): View|JsonResponse //CATEGORIES NOT WORKING SINCE THERE ARE NO GAMES RELATED TO CATEGORIES ON THE DATABASE
+    public function index(Request $request): View|Response //CATEGORIES NOT WORKING SINCE THERE ARE NO GAMES RELATED TO CATEGORIES ON THE DATABASE
     {
         try {
             $selectedCats = $request->input('categories', []);
@@ -74,18 +75,17 @@ class ProductController extends Controller
                 ->orderBy('id', 'asc')
                 ->paginate(10);
             return view('pages.products', ['products' => $products]);
-
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Shows the product page with the given id.
      */
-    public function show(int $id): View|JsonResponse
+    public function show(int $id): View|Response
     {
         try {
             $product = Product::findOrFail($id);
@@ -94,16 +94,16 @@ class ProductController extends Controller
 
             return view('pages.product', ['product' => $product]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Searches for exact matches and redirects otherwise.
      */
-    public function search(Request $request): RedirectResponse|JsonResponse
+    public function search(Request $request): RedirectResponse|Response
     {
         try {
             $this->authorize('search', Product::class);
@@ -122,16 +122,16 @@ class ProductController extends Controller
 
             return redirect()->route('display_search', ['query' => $query['query']]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Performs a full-text search.
      */
-    public function ftsearch(string $query): Collection|JsonResponse
+    public function ftsearch(string $query): Collection|Response
     {
         try {
             $this->authorize('ftsearch', Product::class);
@@ -142,16 +142,16 @@ class ProductController extends Controller
                 ->take(10)
                 ->get();
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Displays the search results.
      */
-    public function display(Request $request): View|JsonResponse
+    public function display(Request $request): View|Response
     {
         try {
             $this->authorize('display', Product::class);
@@ -164,30 +164,30 @@ class ProductController extends Controller
 
             return view('pages.products', ['products' => $products]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Shows the create product widget.
      */
-    public function create(): View|JsonResponse
+    public function create(): View|Response
     {
         try {
             $this->authorize('create', Product::class);
 
             return view('widgets.create-product');
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Shows the edit product widget.
      */
-    public function edit(int $id): View|JsonResponse
+    public function edit(int $id): View|Response
     {
         try {
             $product = Product::findOrFail($id);
@@ -199,17 +199,17 @@ class ProductController extends Controller
             $types = ProductType::cases();
 
             return view('pages.edit-product', ['product' => $product, 'platforms' => $platforms, 'regions' => $regions, 'types' => $types]);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Inserts a new product.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse|Response
     {
         try {
             $product = new Product();
@@ -224,16 +224,16 @@ class ProductController extends Controller
 
             return response()->json($product);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Updates a product.
      */
-    public function update(Request $request, $id): RedirectResponse|JsonResponse
+    public function update(Request $request, $id): RedirectResponse|Response
     {
         try {
             $product = Product::findOrFail($id);
@@ -254,12 +254,10 @@ class ProductController extends Controller
             $product->save();
 
             return redirect()->route('product', ['id' => $product->id]);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException | ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 }

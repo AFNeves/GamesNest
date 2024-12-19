@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -12,7 +13,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\WishlistController;
 
 // Home
-Route::get('/', [ProductController::class, 'index']);
+Route::get('/', [ProductController::class, 'index'])->name('home');
 
 // Authentication
 Route::controller(LoginController::class)->group(function () {
@@ -41,15 +42,19 @@ Route::middleware('auth')->group(function () {
     // User Management
     Route::controller(UserController::class)->group(function () {
         Route::get('/users', 'manage')->name('management');
+        // Profile Page Routes
         Route::get('/profile/{id}', 'show')->name('profile.show');
         Route::get('/profile/{id}/edit', 'edit')->name('profile.edit');
-        Route::post('/profile/{id}/edit', 'update')->name('profile.update');
-        Route::post('/profile/{id}', 'destroy')->name('profile.destroy');
+        Route::put('/profile/{id}/edit', 'update')->name('profile.update');
+        Route::delete('/profile/{id}', 'destroy')->name('profile.destroy');
+        Route::get('/profile', function () {
+            return redirect()->route('profile.show', ['id' => Auth::id()]);
+        })->name('profile.redirect');
     });
 
     // Shopping Cart
     Route::controller(ShopCartController::class)->group(function () {
-        Route::get('/cart/{id}', 'show')->name('cart.show');
+        Route::get('/cart', 'show')->name('cart.show');
         Route::post('/cart', 'store')->name('cart.store');
         Route::put('/cart', 'update')->name('cart.update');
         Route::delete('/cart', 'destroy')->name('cart.destroy');
@@ -72,6 +77,9 @@ Route::middleware('auth')->group(function () {
     // Keys
     Route::controller(KeyController::class)->group(function () {
         Route::get('/keys/{id}', 'list')->name('key.inventory');
+        Route::get('/keys', function () {
+            return redirect()->route('key.inventory', ['id' => Auth::id()]);
+        })->name('keys.redirect');
     });
 });
 
@@ -89,3 +97,8 @@ Route::get('/faq', function () {
 Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
+
+// Fallback
+Route::fallback(function () {
+    return response()->view('pages.error', ['errorCode' => '404'], 404);
+});

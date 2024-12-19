@@ -11,7 +11,7 @@
                 <input type="text" name="address_line" class="address-input w-full" placeholder="Address Line" value="{{ old('address_line') }}" required />
 
                 <input type="text" name="district" class="address-input w-full" placeholder="State" value="{{ old('district') }}" required />
-
+ssss
                 <div class="flex justify-between w-full space-x-4">
                     <input type="text" name="city" class="address-input w-full" placeholder="City" value="{{ old('city') }}" required />
 
@@ -64,7 +64,7 @@
                 <span class="text-3xl">Total: {{ $items->sum('price') }} €</span>
                 <form action="{{ route('checkout.action') }}" method="GET">
                     <input type="hidden" name="id" value="{{ Auth::id() }}">
-                    <button type="submit" class="bg-green-500 rounded-lg p-2" disabled>Place Order</button>
+                    <button type="submit" class="bg-green-500 rounded-lg p-2">Place Order</button>
                 </form>
             </div>
         </div>

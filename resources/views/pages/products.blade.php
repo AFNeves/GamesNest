@@ -1,14 +1,20 @@
 @extends('layouts.app')
 
 @section('search-bar')
-    @include('components.search-bar')
+    @include('widgets.header.search-bar')
 @endsection
 
-@section('header-context')
-    @include('components.header-context')
+@section('header-options')
+    @include('widgets.header.header-options')
 @endsection
 
+@section('footer-logo')
+    @include('widgets.footer.footer-logo')
+@endsection
 
+@section('footer-nav')
+    @include('widgets.footer.footer-nav')
+@endsection
 
 @section('content')
     <div class="flex">

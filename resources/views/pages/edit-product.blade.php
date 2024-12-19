@@ -1,17 +1,30 @@
 @extends('layouts.app')
 
-@section('header-context')
-    @include('components.header-context')
+@section('search-bar')
+    @include('widgets.header.search-bar')
+@endsection
+
+@section('header-options')
+    @include('widgets.header.header-options')
+@endsection
+
+@section('footer-logo')
+    @include('widgets.footer.footer-logo')
+@endsection
+
+@section('footer-nav')
+    @include('widgets.footer.footer-nav')
 @endsection
 
 @section('content')
-    <h1>Editing Product Details</h1>
+    <span class="text-2xl">Editing Product Details</span>
     <div class="flex flex-col flex-grow items-center justify-center py-4 w-full max-w-[calc(50%)]">
         <form method="POST" action="{{ route('product.update', ['id' => $product->id]) }}" class="auth-form w-2/3 p-4">
             @csrf
 
-            <div class="space-y-6 whitespace-nowrap w-full">
-                <input type="text" name="title" class="auth-form-input" placeholder="Title" value="{{ old('title', $product->title) }}" />
+            <div class="flex flex-col justify-center items-center space-y-6 whitespace-nowrap w-full">
+                <input type="text" name="title" class="auth-form-input" placeholder="Title"
+                       value="{{ old('title', $product->title) }}"/>
 
                 <textarea name="description" class="auth-form-input" placeholder="Description" rows="6">{{old('description', $product->description) }}
                 </textarea>
@@ -43,7 +56,8 @@
                     @endforeach
                 </select>
 
-                <input type="number" name="price" class="auth-form-input" placeholder="Price" min="0,99" max="100" step="0.01" value="{{ old('price', $product->price) }}" />
+                <input type="number" name="price" class="auth-form-input" placeholder="Price" min="0,99" max="100"
+                       step="0.01" value="{{ old('price', $product->price) }}"/>
             </div>
 
             <button type="submit" class="auth-form-button mt-10">Save</button>

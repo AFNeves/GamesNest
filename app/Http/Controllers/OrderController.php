@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\Status;
 use App\Casts\Address;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
@@ -40,7 +38,7 @@ class OrderController extends Controller
     /**
      * Shows the details of an order.
      */
-    public function show(int $user_id, int $order_id): View|JsonResponse
+    public function show(int $user_id, int $order_id): View|Response
     {
         try {
             $order = Order::findOrFail($order_id);
@@ -49,16 +47,16 @@ class OrderController extends Controller
 
             return view('pages.order', ['order' => $order]);
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Lists all orders.
      */
-    public function listUserOrders(int $id): View|JsonResponse
+    public function listUserOrders(int $id): View|Response
     {
         try {
             $user = User::findOrFail($id);
@@ -74,14 +72,14 @@ class OrderController extends Controller
         } catch (ModelNotFoundException) {
             return view('pages.order-history', ['orders' => []]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Shows the checkout page.
      */
-    public function create(Request $request): View|JsonResponse
+    public function create(Request $request): View|Response
     {
         try {
             $validated = $request->validate([
@@ -98,14 +96,14 @@ class OrderController extends Controller
 
             return view('pages.checkout', ['items' => $items]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Inserts a new order.
      */
-    public function store(Request $request): RedirectResponse|JsonResponse
+    public function store(Request $request): RedirectResponse|Response
     {
         try {
             /* Authorize and Validate Request */
@@ -142,10 +140,10 @@ class OrderController extends Controller
             $transaction->save();
 
             return redirect()->route('order.details', ['success' => 'Order placed successfully.', 'id' => $order->id]);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
         } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 }

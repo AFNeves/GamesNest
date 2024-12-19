@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ class UserController extends Controller
     /**
      * Shows the user management page.
      */
-    public function manage(): View|JsonResponse
+    public function manage(): View|Response
     {
         try {
             $this->authorize('manage', Auth::user());
@@ -27,14 +28,14 @@ class UserController extends Controller
 
             return view('pages.users', ['users' => $users]);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Shows the first 20 users using pagination.
      */
-    public function index(): JsonResponse
+    public function index(): JsonResponse|Response
     {
         try {
             $users = User::where('visibility', true)->paginate(20);
@@ -43,16 +44,16 @@ class UserController extends Controller
 
             return response()->json($users);
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Shows the user page with the given id.
      */
-    public function show(int $id): View|RedirectResponse|JsonResponse
+    public function show(int $id): View|RedirectResponse|Response
     {
         try {
             $user = User::findOrFail($id);
@@ -63,14 +64,14 @@ class UserController extends Controller
         } catch (AuthorizationException) {
             return redirect()->route('profile.show', ['id' => Auth::id()]);
         } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Shows the edit user widget.
      */
-    public function edit(int $id): View|JsonResponse
+    public function edit(int $id): View|Response
     {
         try {
             $user = User::findOrFail($id);
@@ -79,16 +80,16 @@ class UserController extends Controller
 
             return view('pages.edit-user', ['user' => $user]);
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 
     /**
      * Updates a user.
      */
-    public function update(Request $request, $id): RedirectResponse|JsonResponse
+    public function update(Request $request, $id): RedirectResponse|Response
     {
         try {
             $user = User::findOrFail($id);
@@ -142,19 +143,17 @@ class UserController extends Controller
             $user->save();
 
             return redirect()->route('profile.show', ['id' => $user->id]);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'User not found'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException $e) {
-            return response()->json(['error' => 'Validation failed', 'messages' => $e->errors()], 400);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException | ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Deletes a user.
      */
-    public function destroy(int $id): RedirectResponse|JsonResponse
+    public function destroy(int $id): RedirectResponse|Response
     {
         try {
             $user = User::findOrFail($id);
@@ -163,11 +162,11 @@ class UserController extends Controller
 
             $user->delete();
 
-            return redirect()->route('/');
+            return redirect()->route('home');
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 }

@@ -1,33 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="flex flex-col flex-grow items-center justify-center py-4 w-full max-w-[calc(50%)]">
-        <form method="POST" action="{{ route('register-action') }}" class="auth-form w-2/3 p-4">
-            @csrf
+    <form method="POST" action="{{ route('register-action') }}" class="auth-form">
+        @csrf
 
-            <div class="space-y-6 whitespace-nowrap w-full">
-                <input type="text" name="first_name" class="auth-form-input" placeholder="First Name" value="{{ old('first_name') }}" required />
+        <div class="flex-col center w-full space-y-6">
+            <input type="text" name="first_name" class="auth-form-input" placeholder="First Name" value="{{ old('first_name') }}" required />
 
-                <input type="text" name="last_name" class="auth-form-input" placeholder="Last Name" value="{{ old('last_name') }}" required />
+            <input type="text" name="last_name" class="auth-form-input" placeholder="Last Name" value="{{ old('last_name') }}" required />
 
-                <input type="text" name="username" class="auth-form-input" placeholder="Username" value="{{ old('username') }}" required />
+            <input type="text" name="username" class="auth-form-input" placeholder="Username" value="{{ old('username') }}" required />
 
-                <input type="email" name="email" class="auth-form-input" placeholder="Email" value="{{ old('email') }}" required />
+            <input type="email" name="email" class="auth-form-input" placeholder="Email" value="{{ old('email') }}" required />
 
-                <input type="password" name="password" class="auth-form-input" placeholder="Password" required />
+            <input type="password" name="password" class="auth-form-input" placeholder="Password" autocomplete="new-password" required />
 
-                <input type="password" name="password_confirmation" class="auth-form-input" placeholder="Confirm Password" required />
+            <input type="password" name="password_confirmation" class="auth-form-input" placeholder="Confirm Password" required />
+        </div>
+
+        @if ($errors->any())
+            <<div class="text-red-600 text-base mt-6">
+                {{ $errors->first() }}
             </div>
+        @endif
 
-            <button type="submit" class="auth-form-button mt-10">Register</button>
+        <button type="submit" class="auth-form-button @if($errors->any()) mt-6 @else mt-8 @endif">Register</button>
 
-            @if ($errors->any())
-                <div class="text-red-500 text-base mt-8">
-                    {{ $errors->first() }}
-                </div>
-            @endif
-
-            <a href="{{ route('login') }}" class="text-lg text-gray-300 mt-10">Already have an account?</a>
-        </form>
-    </div>
+        <a href="{{ route('login') }}" class="text-lg hover:text-primary mt-6 cst-tr">Already have an account?</a>
+    </form>
 @endsection

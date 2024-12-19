@@ -4,7 +4,7 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "tailwind": "tailwindcss -i ./resources/css/app.css -o ./public/css/tailwind.css --watch"
+        "tailwind": "tailwindcss -i ./resources/css/app.css -i ./resources/css/header-footer.css -o ./public/css/tailwind.css --watch"
     },
     "devDependencies": {
         "autoprefixer": "^10.4.20",

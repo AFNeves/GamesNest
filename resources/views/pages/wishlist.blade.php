@@ -1,17 +1,27 @@
 @extends('layouts.app')
 
-@if ($items->isEmpty())
-    @section('header-context')
-        @include('components.header-context')
-    @endsection
+@section('search-bar')
+    @include('widgets.header.search-bar')
+@endsection
 
-    @section('content')
+@section('header-options')
+    @include('widgets.header.header-options')
+@endsection
+
+@section('footer-logo')
+    @include('widgets.footer.footer-logo')
+@endsection
+
+@section('footer-nav')
+    @include('widgets.footer.footer-nav')
+@endsection
+
+@section('content')
+    @if ($items->isEmpty())
         <div class="flex flex-col flex-grow items-center justify-center p-4 w-full rounded-xl space-y-4">
             <h1 class="text-4xl">No products wishlisted</h1>
         </div>
-    @endsection
-@else
-    @section('content')
+    @else
         <div class="flex flex-grow w-full space-x-4">
             <div class="flex flex-col flex-grow items-center justify-start p-4 w-full bg-gray-600 rounded-xl space-y-4">
                 @foreach($items as $item)
@@ -42,5 +52,5 @@
                 @endforeach
             </div>
         </div>
-    @endsection
-@endif
+    @endif
+@endsection

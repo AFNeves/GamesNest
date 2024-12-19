@@ -1,16 +1,55 @@
+const header = document.querySelector('header');
+
+function onScroll() {
+    if (window.scrollY > 0) {
+        header.classList.remove('header-top');
+        header.classList.add('header-scroll');
+    } else {
+        header.classList.add('header-top');
+        header.classList.remove('header-scroll');
+    }
+}
+
+function toggleAnswer(element) {
+    const answer = element.nextElementSibling;
+    answer.style.display = answer.style.display === "block" ? "none" : "block";
+    element.classList.toggle("active");
+}
+
+/* Event Listeners */
 function addEventListeners() {
+
+    /* Header Element */
+
+    const specialHeadersPaths = ['/login', '/register', '/about', '/faq', '/contact'];
+    if (!specialHeadersPaths.includes(window.location.pathname)) {
+        // Fix header color
+        window.addEventListener('scroll', onScroll);
+        onScroll();
+        // Fix footer color
+        document.querySelector('footer').classList.remove('bg-transparent');
+    }
+
+    document.getElementById('searchSubmit').addEventListener('click', function () {
+        document.getElementById('searchForm').submit();
+    });
+
+    document.getElementById('searchClear').addEventListener('click', function () {
+        document.getElementById('searchInput').value = '';
+    });
+
     /* Edit Profile Page */
 
-    document.getElementById('profile-picture-overlay').addEventListener('click', function() {
+    document.getElementById('profile-picture-overlay').addEventListener('click', function () {
         document.getElementById('profile-picture-input').click();
     });
 
-    document.getElementById('profile-picture-input').addEventListener('change', function(event) {
+    document.getElementById('profile-picture-input').addEventListener('change', function (event) {
         const file = event.target.files[0];
 
         if (file) {
             const reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 document.getElementById('profile-picture').src = reader.result;
             }
             reader.readAsDataURL(file);
@@ -20,22 +59,22 @@ function addEventListeners() {
     /* TODO: Remove before production */
 
     let itemCheckers = document.querySelectorAll('article.card li.item input[type=checkbox]');
-    [].forEach.call(itemCheckers, function(checker) {
+    [].forEach.call(itemCheckers, function (checker) {
         checker.addEventListener('change', sendItemUpdateRequest);
     });
 
     let itemCreators = document.querySelectorAll('article.card form.new_item');
-    [].forEach.call(itemCreators, function(creator) {
+    [].forEach.call(itemCreators, function (creator) {
         creator.addEventListener('submit', sendCreateItemRequest);
     });
 
     let itemDeleters = document.querySelectorAll('article.card li a.delete');
-    [].forEach.call(itemDeleters, function(deleter) {
+    [].forEach.call(itemDeleters, function (deleter) {
         deleter.addEventListener('click', sendDeleteItemRequest);
     });
 
     let cardDeleters = document.querySelectorAll('article.card header a.delete');
-    [].forEach.call(cardDeleters, function(deleter) {
+    [].forEach.call(cardDeleters, function (deleter) {
         deleter.addEventListener('click', sendDeleteCardRequest);
     });
 
@@ -46,7 +85,7 @@ function addEventListeners() {
 
 function encodeForAjax(data) {
     if (data == null) return null;
-    return Object.keys(data).map(function(k){
+    return Object.keys(data).map(function (k) {
         return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
     }).join('&');
 }
@@ -120,7 +159,7 @@ function itemAddedHandler() {
     form.previousElementSibling.append(new_item);
 
     // Reset the new item form
-    form.querySelector('[type=text]').value="";
+    form.querySelector('[type=text]').value = "";
 }
 
 function itemDeletedHandler() {
@@ -133,7 +172,7 @@ function itemDeletedHandler() {
 function cardDeletedHandler() {
     if (this.status != 200) window.location = '/';
     let card = JSON.parse(this.responseText);
-    let article = document.querySelector('article.card[data-id="'+ card.id + '"]');
+    let article = document.querySelector('article.card[data-id="' + card.id + '"]');
     article.remove();
 }
 
@@ -146,7 +185,7 @@ function cardAddedHandler() {
 
     // Reset the new card input
     let form = document.querySelector('article.card form.new_card');
-    form.querySelector('[type=text]').value="";
+    form.querySelector('[type=text]').value = "";
 
     // Insert the new card
     let article = form.parentElement;
