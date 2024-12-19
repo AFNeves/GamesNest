@@ -60,13 +60,13 @@
 
                 <ul class="flex flex-wrap items-center">
                     <li>
-                        <span class="gn-footer-li">About</span>
+                        <a href="{{ url('/about') }}" class="gn-footer-li">About</a>
                     </li>
                     <li>
                         <span class="gn-footer-li">Services</span>
                     </li>
                     <li>
-                        <span class="gn-footer-li">FAQ</span>
+                        <a href="{{ url('/faq') }}" class="gn-footer-li">FAQ</a>
                     </li>
                     <li>
                         <span class="gn-footer-li">Contact</span>
