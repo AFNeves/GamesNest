@@ -9,7 +9,7 @@
             <img src="{{ asset("/images/users/" . Auth::id() . "/" . Auth::user()->profile_picture) }}" class="w-14 h-14 rounded-full" alt="User"/>
         </a>
         <a href="{{ route('wishlist.show', ['id' => Auth::id()]) }}" class="py-2 mr-6">
-            <img src="{{ asset("/images/icons/open_heart.svg") }}" class="w-12 h-12" alt="Cart"/>
+            <img src="{{ asset("/images/icons/open_heart.svg") }}" class="w-12 h-12" alt="Wishlist"/>
         </a>
         <a href="{{ route('cart.show', ['id' => Auth::id()]) }}" class="py-2 mr-6">
             <img src="{{ asset("/images/icons/cart.svg") }}" class="w-12 h-12" alt="Cart"/>

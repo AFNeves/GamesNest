@@ -31,6 +31,10 @@ class CategoryPolicy
         return true;
     }
 
+    public static function getCategories(User $user){
+        return true;
+    }
+
     /**
      * Shows the create category widget.
      */

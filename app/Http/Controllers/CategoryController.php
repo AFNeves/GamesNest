@@ -39,6 +39,10 @@ class CategoryController extends Controller
         }
     }
 
+    public static function getCategories(): Collection{
+        return Category::all();
+    }
+
     /**
      * Shows the create category widget.
      */
