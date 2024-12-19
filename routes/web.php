@@ -74,3 +74,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/keys/{id}', 'list')->name('key.inventory');
     });
 });
+
+// About Us
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
+
+// FAQ
+Route::get('/faq', function () {
+    return view('pages.faq');
+})->name('faq');
