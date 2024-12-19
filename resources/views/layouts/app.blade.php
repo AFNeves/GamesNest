@@ -69,7 +69,7 @@
                         <a href="{{ url('/faq') }}" class="gn-footer-li">FAQ</a>
                     </li>
                     <li>
-                        <span class="gn-footer-li">Contact</span>
+                        <span href="{{ url('/contact') }}"class="gn-footer-li">Contact</span>
                     </li>
                 </ul>
 

@@ -84,3 +84,8 @@ Route::get('/about', function () {
 Route::get('/faq', function () {
     return view('pages.faq');
 })->name('faq');
+
+// contact
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
