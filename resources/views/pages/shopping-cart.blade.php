@@ -1,10 +1,22 @@
 @extends('layouts.app')
 
-@if ($items->isEmpty())
-    @section('header-context')
-        @include('components.header-context')
-    @endsection
+@section('search-bar')
+    @include('widgets.header.search-bar')
+@endsection
 
+@section('header-options')
+    @include('widgets.header.header-options')
+@endsection
+
+@section('footer-logo')
+    @include('widgets.footer.footer-logo')
+@endsection
+
+@section('footer-nav')
+    @include('widgets.footer.footer-nav')
+@endsection
+
+@if ($items->isEmpty())
     @section('content')
         <div class="flex flex-col flex-grow items-center justify-center p-4 w-full rounded-xl space-y-4">
             <h1 class="text-4xl">No products in cart</h1>
@@ -16,7 +28,8 @@
             <div class="flex flex-col flex-grow items-center justify-start p-4 w-full bg-gray-600 rounded-xl space-y-4">
                 @foreach($items as $item)
                     <div class="flex w-full bg-gray-800 rounded-xl p-4 justify-between items-center min-h-44">
-                        <img src="{{ url($item->images . '/' . scandir($item->images)[2]) }}" alt="{{ $item->title }}" class="w-auto h-full max-h-36 rounded-lg">
+                        <img src="{{ url($item->images . '/' . scandir($item->images)[2]) }}" alt="{{ $item->title }}"
+                             class="w-auto h-full max-h-36 rounded-lg">
                         <div class="flex flex-col flex-grow justify-between mx-4 h-full p-4">
                             <span>{{ $item->title }}</span>
                             <span class="text-green-500">{{ $item->region }}</span>
@@ -28,7 +41,8 @@
                                 @method('DELETE')
                                 <input type="hidden" name="product_id" value="{{ $item->id }}">
                                 <button type="submit">
-                                    <img src="{{ asset('images/icons/trash.svg') }}" alt="Remove from Cart" class="w-10 h-10">
+                                    <img src="{{ asset('images/icons/trash.svg') }}" alt="Remove from Cart"
+                                         class="w-10 h-10">
                                 </button>
                             </form>
                             <div class="flex items-center justify-center bg-gray-500 rounded-lg py-1">
@@ -39,11 +53,13 @@
                                         <input type="hidden" name="product_id" value="{{ $item->id }}">
                                         <input type="hidden" name="quantity" value="{{ $item->pivot->quantity - 1 }}">
                                         <button type="submit" @if($item->pivot->quantity <= 1) disabled @endif>
-                                            <img src="{{ asset('images/icons/minus.svg') }}" alt="Decrease Quantity" class="w-10 h-10">
+                                            <img src="{{ asset('images/icons/minus.svg') }}" alt="Decrease Quantity"
+                                                 class="w-10 h-10">
                                         </button>
                                     </form>
                                 </div>
-                                <span id="item-quantity-{{ $item->id }}" class="px-4 text-white">{{ $item->pivot->quantity }}</span>
+                                <span id="item-quantity-{{ $item->id }}"
+                                      class="px-4 text-white">{{ $item->pivot->quantity }}</span>
                                 <div class="w-1/4 h-auto">
                                     <form action="{{ route('cart.update') }}" method="POST">
                                         @csrf
@@ -51,7 +67,8 @@
                                         <input type="hidden" name="product_id" value="{{ $item->id }}">
                                         <input type="hidden" name="quantity" value="{{ $item->pivot->quantity + 1 }}">
                                         <button type="submit" @if($item->pivot->quantity > 20) disabled @endif>
-                                            <img src="{{ asset('images/icons/plus.svg') }}" alt="Increase Quantity" class="w-10 h-10">
+                                            <img src="{{ asset('images/icons/plus.svg') }}" alt="Increase Quantity"
+                                                 class="w-10 h-10">
                                         </button>
                                     </form>
                                 </div>

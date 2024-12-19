@@ -1,34 +1,52 @@
 @extends('layouts.app')
 
-@section('header-context')
-    <div class="flex items-center justify-between">
-        <a href="{{ route('logout') }}" class="header-button">Logout</a>
-    </div>
+@section('search-bar')
+    @include('widgets.header.search-bar')
+@endsection
+
+@section('header-options')
+    @include('widgets.header.header-options')
+@endsection
+
+@section('footer-logo')
+    @include('widgets.footer.footer-logo')
+@endsection
+
+@section('footer-nav')
+    @include('widgets.footer.footer-nav')
 @endsection
 
 @section('content')
-    <div class="flex flex-col flex-grow space-y-8">
+    <div class="profile-div">
         <div class="flex justify-center items-center">
-            <img src="{{ asset("/images/users/" . $user->id . "/" . $user->profile_picture) }}" alt="{{ $user->username }} Avatar" class="w-32 h-32 rounded-full">
+            <img src="{{ asset("/images/users/" . $user->id . "/" . $user->profile_picture) }}" alt="" class="profile-icon">
         </div>
 
-        <span>{{ $user->username }}</span>
-        <span>{{ $user->first_name }} {{ $user->last_name }}</span>
-        <span>{{ $user->email }}</span>
+        <div class="flex flex-col justify-center space-y-6">
+            <span>{{ $user->first_name }} {{ $user->last_name }}</span>
+            <span>{{ $user->username }}</span>
+            <span>{{ $user->email }}</span>
+        </div>
 
         <hr>
 
-        <a href="{{ route('profile.edit', ['id' => $user->id]) }}" class="hover:underline">Edit Profile</a>
+        <div class="flex flex-col justify-center space-y-6">
+            <a href="{{ route('profile.edit', ['id' => $user->id]) }}">Edit Profile</a>
 
-        @if ($user->is_admin)
-            <a href="{{ route('management') }}" class="text-blue-500 hover:underline">User Management</a>
-        @else
-            <a href="{{ route('order.history', ['id' => $user->id]) }}" class="hover:underline">Orders History</a>
-            <a href="{{ route('key.inventory', ['id' => $user->id]) }}" class="hover:underline">Key Inventory</a>
-        @endif
+            @if ($user->is_admin)
+                <a href="{{ route('management') }}">User Management</a>
+            @else
+                <a href="{{ route('order.history', ['id' => $user->id]) }}">Orders History</a>
+                <a href="{{ route('key.inventory', ['id' => $user->id]) }}">Key Inventory</a>
+            @endif
+        </div>
 
         <hr>
 
-        <a href="{{ route('profile.destroy', ['id' => $user->id]) }}" class="text-red-700 hover:underline">Delete Account</a>
+        <form action="{{ route('profile.destroy', ['id' => $user->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="custom-button h-[50px] w-full">Delete Account</button>
+        </form>
     </div>
 @endsection

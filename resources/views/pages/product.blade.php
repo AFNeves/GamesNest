@@ -1,18 +1,27 @@
 @extends('layouts.app')
 
 @section('search-bar')
-    @include('components.search-bar')
+    @include('widgets.header.search-bar')
 @endsection
 
-@section('header-context')
-    @include('components.header-context')
+@section('header-options')
+    @include('widgets.header.header-options')
+@endsection
+
+@section('footer-logo')
+    @include('widgets.footer.footer-logo')
+@endsection
+
+@section('footer-nav')
+    @include('widgets.footer.footer-nav')
 @endsection
 
 @section('content')
     <div class="flex flex-col flex-grow items-center justify-start p-4 w-full bg-gray-600 rounded-xl space-y-4">
         <div class="flex space-x-4">
             <div class="flex flex-col space-y-4 w-full min-w-96 max-w-96">
-                <img src="{{ url($product->images . '/' . scandir($product->images)[2]) }}" alt="{{ $product->title }}" class="w-full h-auto rounded-lg">
+                <img src="{{ url($product->images . '/' . scandir($product->images)[2]) }}" alt="{{ $product->title }}"
+                     class="w-full h-auto rounded-lg">
 
                 <div class="flex flex-grow justify-between items-center w-full space-x-4">
                     @php
@@ -20,7 +29,8 @@
                     @endphp
 
                     @foreach($images as $image)
-                        <img src="{{ url($product->images . '/' . $image) }}" alt="{{ $product->title }}" class="w-full h-auto rounded-lg">
+                        <img src="{{ url($product->images . '/' . $image) }}" alt="{{ $product->title }}"
+                             class="w-full h-auto rounded-lg">
                     @endforeach
                 </div>
             </div>
@@ -77,8 +87,9 @@
                 @foreach($product->reviews as $review)
                     <div class="flex flex-col space-y-8 w-full bg-gray-700 rounded-lg px-6 pt-4 pb-6">
                         <div class="flex justify-between items-center">
-                            <div class = "flex items-center space-x-4">
-                                <img src="{{ url('images/users/' . $review->user->id . '/' . $review->user->profile_picture) }}" alt="{{ $review->user->usename }} Picture" class="w-12 h-12 rounded-full">
+                            <div class="flex items-center space-x-4">
+                                <img src="{{ url('images/users/' . $review->user->id . '/' . $review->user->profile_picture) }}"
+                                     alt="{{ $review->user->usename }} Picture" class="w-12 h-12 rounded-full">
                                 <span class="">{{ $review->user->first_name }} {{ $review->user->last_name }}</span>
                             </div>
                             <span class="">{{ $review->review_date }}</span>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -20,27 +21,27 @@ class ShopCartController extends Controller
     /**
      * Shows the shopping cart page.
      */
-    public function show(int $id): View|JsonResponse
+    public function show(): View|JsonResponse
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::findOrFail(Auth::id());
 
             $this->authorize('show', $user);
 
             $items = $user->shoppingCart()->withPivot('quantity')->get();
 
             return view('pages.shopping-cart', ['user' => $user, 'items' => $items]);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Order not found'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Inserts a new product into the shopping cart.
      */
-    public function store(Request $request): RedirectResponse|JsonResponse
+    public function store(Request $request): RedirectResponse|Response
     {
         try {
             $validated = $request->validate([
@@ -55,16 +56,16 @@ class ShopCartController extends Controller
 
             return redirect()->route('cart.show', ['id' => Auth::id()]); /* TODO: TO IMPLEMENT AJAX */
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException | ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Updates the quantity of a product in the shopping cart.
      */
-    public function update(Request $request): RedirectResponse|JsonResponse
+    public function update(Request $request): RedirectResponse|Response
     {
         try {
             $validated = $request->validate([
@@ -81,25 +82,23 @@ class ShopCartController extends Controller
             $stock = Key::where('product_id', $product->id)->where('order_id', '!=', NULL)->count();
 
             if($stock < $validated['quantity']) {
-                return response()->json(['error' => 'Not enough stock'], 400);
+                return response()->view('pages.error', ['errorCode' => '400'], 400);
             }
 
             $product->shoppingCarts()->updateExistingPivot(Auth::id(), ['quantity' => $validated['quantity']]);
 
             return redirect()->route('cart.show', ['id' => Auth::id()]); /* TODO: TO IMPLEMENT AJAX */
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Product not found'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException | ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 
     /**
      * Deletes an item from the shopping cart.
      */
-    public function destroy(Request $request): RedirectResponse|JsonResponse
+    public function destroy(Request $request): RedirectResponse|Response
     {
         try {
             $validated = $request->validate([
@@ -111,10 +110,10 @@ class ShopCartController extends Controller
             $product->shoppingCarts()->detach(Auth::id());
 
             return redirect()->route('cart.show', ['id' => Auth::id()]); /* TODO: TO IMPLEMENT AJAX */
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Product doesn\'t exist'], 404);
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        } catch (ModelNotFoundException | ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
         }
     }
 }

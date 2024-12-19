@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+<html lang="en">
     <head>
+        <!-- Meta Tags -->
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,64 +18,42 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         <script type="text/javascript"></script>
-        <script type="text/javascript" src={{ url('js/app.js') }} defer></script>
+        <script type="text/javascript" src="{{ url('js/app.js') }}" defer></script>
     </head>
     <body>
-        <!-- Header -->
-        <header>
-            <div class="flex flex-wrap items-center mx-auto min-h-14 my-2.5 {{ !View::hasSection('search-bar') && !View::hasSection('header-context') ? 'justify-center' : 'justify-between' }}">
-                <!-- Logo -->
-                <a href="/" class="flex items-center">
-                    <img src="{{ asset('images/games-nest-icon.png') }}" class="w-28 h-28" alt="GamesNest Logo" />
-                    <span class="font-jaro text-4xl self-center whitespace-nowrap">GamesNest</span>
-                </a>
+        <header class="{{ !View::hasSection('search-bar') && !View::hasSection('header-options') ? 'justify-center' : 'justify-between' }}">
+            <a href="/" class="flex items-center h-1/2 space-x-2">
+                <img src="{{ asset('images/logo.svg') }}" alt="" class="h-full w-auto"/>
+                <span class="header-logo-text">GamesNest</span>
+            </a>
 
-                @hasSection('search-bar')
-                    <!-- Search Bar -->
-                    @yield('search-bar')
-                @endif
+            @hasSection('search-bar')
+                @yield('search-bar')
+            @endif
 
-                @hasSection('header-context')
-                    <!-- Login / User ID -->
-                    @yield('header-context')
-                @endif
-            </div>
+            @hasSection('header-options')
+                @yield('header-options')
+            @endif
         </header>
 
-        <!-- Main Content -->
         <main>
             @yield('content')
         </main>
 
-        <!-- Footer -->
-        <footer>
-            <div class="flex flex-wrap items-center justify-between py-4 text-sm">
-                <div class="flex items-center">
-                    <img src="{{ asset('images/games-nest-icon.png') }}" class="w-16 h-16" alt="GamesNest Logo" />
-                    <span class="font-jaro text-2xl self-center whitespace-nowrap">GamesNest</span>
-                </div>
+        <footer class="{{ !View::hasSection('footer-logo') && !View::hasSection('footer-nav') ? 'justify-center bg-transparent' : 'justify-between' }}">
+            @hasSection('footer-logo')
+                @yield('footer-logo')
+            @endif
 
-                <ul class="flex flex-wrap items-center">
-                    <li>
-                        <a href="{{ url('/about') }}" class="gn-footer-li">About</a>
-                    </li>
-                    <li>
-                        <span class="gn-footer-li">Services</span>
-                    </li>
-                    <li>
-                        <a href="{{ url('/faq') }}" class="gn-footer-li">FAQ</a>
-                    </li>
-                    <li>
-                        <span href="{{ url('/contact') }}"class="gn-footer-li">Contact</span>
-                    </li>
-                </ul>
+            @hasSection('footer-nav')
+                @yield('footer-nav')
+            @endif
 
-                <span class="mr-3">© 2024 GamesNest™</span>
-            </div>
+            <span class="copyright">© 2024 GamesNest™</span>
         </footer>
     </body>
 </html>

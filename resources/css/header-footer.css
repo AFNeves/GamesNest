@@ -1,0 +1,208 @@
+@import "app.css";
+
+/* ----- Default Styles ----- */
+
+.header-top {
+    @apply bg-ultra-dark;
+}
+
+.header-scroll {
+    @apply bg-opaque backdrop-blur-3xl
+}
+
+header {
+    @apply flex fixed items-center bg-transparent w-full px-[30px] h-20 cst-tr z-20;
+}
+
+footer {
+    @apply flex items-center justify-between bg-ultra-dark px-[30px] w-full h-16 cst-tr;
+}
+
+/* ----- Logo Text ----- */
+
+.header-logo-text {
+    @apply font-audio self-center flex-grow text-3xl;
+}
+
+.footer-logo-text {
+    @apply font-audio self-center flex-grow text-xl;
+}
+
+/* ----- Header Options ----- */
+
+.header-login, .header-options {
+    @apply flex items-center justify-between cst-tr;
+}
+
+.header-icon {
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    @apply bg-white hover:bg-primary w-8 h-8 cst-tr;
+}
+
+.icon-heart {
+    /* THE URL IS CORRECT, DO NOT CHANGE */
+    mask-image: url(../images/icons/open_heart.svg);
+    -webkit-mask-image: url(../images/icons/open_heart.svg);
+}
+
+.icon-cart {
+    /* THE URL IS CORRECT, DO NOT CHANGE */
+    mask-image: url(../images/icons/cart.svg);
+    -webkit-mask-image: url(../images/icons/cart.svg);
+}
+
+.icon-logout {
+    /* THE URL IS CORRECT, DO NOT CHANGE */
+    mask-image: url(../images/icons/leave.svg);
+    -webkit-mask-image: url(../images/icons/leave.svg);
+}
+
+.header-pic {
+    @apply w-14 h-14 rounded-full cst-tr;
+}
+
+.header-pic:hover {
+    box-shadow: 0 0 0 2px #FF5400;
+}
+
+.header-button {
+    @apply px-6 h-12 w-28;
+}
+
+/* ----- Search Bar ----- */
+
+.search-form {
+    @apply w-full max-w-[600px] cst-tr;
+}
+
+.search-div {
+    @apply flex items-center justify-between w-full;
+}
+
+.search-bar {
+    @apply relative w-full;
+}
+
+.search-input {
+    @apply items-center justify-center ps-6 pe-12 w-full h-[50px] cst-tr;
+    @apply text-base rounded-full bg-medium-dark border-2 border-primary outline-none;
+}
+
+.search-input:focus {
+    @apply fire-gradient border-none caret-white;
+}
+
+.search-input:focus::placeholder {
+    @apply text-white;
+}
+
+.search-clear {
+    visibility: hidden;
+    transform: translateY(-50%);
+    @apply flex items-center absolute top-1/2 right-4 z-[1] cst-tr;
+}
+
+.search-clear-icon {
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    @apply bg-white hover:bg-primary w-5 h-5 cst-tr hover:scale-105;
+    /* THE URL IS CORRECT, DO NOT CHANGE */
+    mask-image: url(../images/icons/clear.svg);
+    -webkit-mask-image: url(../images/icons/clear.svg);
+}
+
+.search-input:focus + .search-clear {
+    visibility: visible;
+}
+
+.search-input:focus + .search-clear .search-clear-icon:hover {
+    background-color: white;
+}
+
+.search-submit {
+    @apply flex justify-center items-center cursor-pointer hover:scale-105;
+    @apply fire-gradient hover:bg-fire-hover rounded-full h-[50px] w-[50px] ml-2 flex-shrink-0 cst-tr;
+}
+
+.search-submit-icon {
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    @apply bg-white w-5 h-5 cst-tr hover:scale-105;
+    transform-origin: center;
+    /* THE URL IS CORRECT, DO NOT CHANGE */
+    mask-image: url(../images/icons/search.svg);
+    -webkit-mask-image: url(../images/icons/search.svg);
+}
+
+/* --- Footer Elements --- */
+
+nav.footer-nav a {
+    @apply mx-6 hover:text-primary cursor-pointer cst-tr;
+}
+
+.copyright {
+    @apply font-audio text-sm;
+}
+
+/* ----- Responsive Design ----- */
+
+@media screen and (max-width: 1300px) {
+    .search-form {
+        @apply max-w-[450px];
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    main {
+        @apply mt-[55px];
+    }
+    header {
+        @apply h-[55px] px-5;
+    }
+    footer {
+        @apply h-[50px] px-5;
+    }
+    .logo-text {
+        @apply text-xl;
+    }
+    .header-login {
+        @apply space-x-2;
+    }
+    .header-options {
+        @apply space-x-3;
+    }
+    .header-button {
+        @apply text-base px-4 h-9 w-[5.5rem];
+    }
+    .header-icon {
+        @apply w-7 h-7;
+    }
+    .header-pic {
+        @apply w-10 h-10;
+    }
+    .search-form {
+        @apply max-w-[400px];
+    }
+    .search-input {
+        @apply h-[40px];
+    }
+    .search-submit {
+        @apply h-[40px] w-[40px];
+    }
+    nav.footer-nav a {
+        @apply mx-3;
+    }
+}
+
+@media screen and (max-width: 850px) {
+    header, footer {
+        @apply px-4;
+    }
+    .search-form {
+        @apply max-w-[300px];
+    }
+    .register-button {
+        @apply hidden;
+    }
+}
