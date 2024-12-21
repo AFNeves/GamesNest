@@ -57,6 +57,7 @@ class KeyController extends Controller
                 ->join('orders', 'product_keys.order_id', '=', 'orders.id')
                 ->join('products', 'product_keys.product_id', '=', 'products.id')
                 ->select('product_keys.key', 'orders.id', 'orders.deliver_date', 'products.title', 'products.price', 'products.platform', 'products.region')
+                ->where('user_id', $id)
                 ->orderBy('orders.id', 'asc')
                 ->get();
 
