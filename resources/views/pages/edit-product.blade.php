@@ -58,6 +58,15 @@
 
                 <input type="number" name="price" class="auth-form-input" placeholder="Price" min="0,99" max="100"
                        step="0.01" value="{{ old('price', $product->price) }}"/>
+
+                @foreach(\App\Http\Controllers\CategoryController::getCategories() as $category)
+                    @if(in_array($category->id, $product->categories->pluck('id')->toArray()))
+                        <input type="checkbox" name="categories[]" value="{{$category->id}}" checked>
+                    @else
+                        <input type="checkbox" name="categories[]" value="{{$category->id}}">
+                    @endif
+                    {{ $category->name }}
+                @endforeach
             </div>
 
             <button type="submit" class="auth-form-button mt-10">Save</button>

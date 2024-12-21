@@ -44,15 +44,17 @@ class ProductController extends Controller
     /**
      * Shows the first 10 products using pagination.
      */
-    public function index(Request $request): View|Response //CATEGORIES NOT WORKING SINCE THERE ARE NO GAMES RELATED TO CATEGORIES ON THE DATABASE
+    public function index(Request $request): View|Response
     {
         try {
             $selectedCats = $request->input('categories', []);
             $selectedPlatforms = $request->input('platforms', []);
             $selectedRegions = $request->input('regions', []);
             $selectedTypes = $request->input('types', []);
+            $minPrice = $request->input('price_lower', 0);
+            $maxPrice = $request->input('price_higher', 0);
 
-            if(empty($selectedCats) and empty($selectedPlatforms) and empty($selectedRegions) and empty($selectedTypes)) {
+            if(empty($selectedCats) and empty($selectedPlatforms) and empty($selectedRegions) and empty($selectedTypes) and $maxPrice===0 and $minPrice===0) {
                 $products = Product::where('visibility', true)
                     ->orderBy('id', 'asc')
                     ->paginate(10);
@@ -68,13 +70,33 @@ class ProductController extends Controller
             if($selectedTypes === []){
                 $selectedTypes = ProductType::cases();
             }
+            if($maxPrice === 0){
+                $maxPrice = 1000;
+            }
+            if($selectedCats === []){
+                $products = Product::where('visibility', true)
+                    ->whereIn('region', $selectedRegions)
+                    ->whereIn('platform', $selectedPlatforms)
+                    ->whereIn('type', $selectedTypes)
+                    ->where('price', '>=', $minPrice)
+                    ->where('price', '<=', $maxPrice)
+                    ->orderBy('id', 'asc')
+                    ->paginate(10);
+                return view('pages.products', ['products' => $products]);
+            }
             $products = Product::where('visibility', true)
                 ->whereIn('region', $selectedRegions)
                 ->whereIn('platform', $selectedPlatforms)
                 ->whereIn('type', $selectedTypes)
+                ->whereHas('categories', function ($query) use ($selectedCats) {
+                    $query->whereIn('id', $selectedCats);
+                })
+                ->where('price', '>=', $minPrice)
+                ->where('price', '<=', $maxPrice)
                 ->orderBy('id', 'asc')
                 ->paginate(10);
             return view('pages.products', ['products' => $products]);
+
         } catch (AuthorizationException) {
             return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ModelNotFoundException) {
@@ -111,7 +133,6 @@ class ProductController extends Controller
             $query = $request->validate([
                 'query' => 'required|string'
             ]);
-
             $exactMatch = Product::where('visibility', true)
                 ->whereRaw("LOWER(title) = ?", [strtolower($query['query'])])
                 ->first();
@@ -240,6 +261,8 @@ class ProductController extends Controller
 
             $this->authorize('update', $product);
 
+            $selectedCats = $request->input('categories', []);
+
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
@@ -252,6 +275,8 @@ class ProductController extends Controller
             $product->fill($validated);
 
             $product->save();
+
+            $product->categories()->sync($selectedCats);
 
             return redirect()->route('product', ['id' => $product->id]);
         } catch (AuthorizationException) {
