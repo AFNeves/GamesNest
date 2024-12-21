@@ -29,8 +29,8 @@
             <div id="categories" class="hidden">
                 @foreach(\App\Http\Controllers\CategoryController::getCategories() as $category)
                     <ul class="text-sm p-2 space-y-1">
-                        <li><input type="checkbox" class="accent-purple-500" id="{{$category->name}}" name="categories[]" value="{{$category->id}}"
-                                   onchange="updateFilters()"  {{ request('categories') && in_array($category->value, request('categories')) ? 'checked' : '' }}>
+                        <li><input type="checkbox" class="accent-purple-500" id="{{$category->id}}" name="categories[]" value="{{$category->id}}"
+                                   onchange="updateFilters()"  {{ request('categories') && in_array($category->id, request('categories')) ? 'checked' : '' }}>
                             {{$category->name}}</li>
                         <!-- idk why the colors do no change PeepoSadge -->
                     </ul>
@@ -89,6 +89,18 @@
                     </ul>
                 @endforeach
             </div>
+            <hr>
+            <h1 class="text-xl font-bold text-white">
+                Price Ranges
+            </h1>
+                <div id="price ranges">
+                    {{ request('types') && in_array($type->value, request('types')) ? 'checked' : '' }}
+                    <input type="number" name="price_lower" class="auth-form-input" placeholder="Price Min" min="0" max="100"
+                           step="0.01" onchange="validatePricesAndUpdate()" value="{{request('price_lower')}}" />
+                    <input type="number" name="price_higher" class="auth-form-input" placeholder="Price Max" min="0" max="100"
+                           step="0.01" onchange="validatePricesAndUpdate()" value="{{request('price_higher')}}"/>
+                    <p id="price-error" style="color: red; display: none;">Higher price must be greater than or equal to the lower price.</p>
+                </div>
         </div>
         @if ($products->isEmpty())
             <div class="flex flex-col flex-grow items-center justify-center p-4 w-full rounded-xl space-y-4">
@@ -166,6 +178,23 @@
 
     });
 
+    function validatePricesAndUpdate() {
+        const priceLowerInput = document.querySelector('input[name="price_lower"]');
+        const priceHigherInput = document.querySelector('input[name="price_higher"]');
+        const priceError = document.getElementById('price-error');
+
+        const priceLower = parseFloat(priceLowerInput.value) || 0;
+        const priceHigher = parseFloat(priceHigherInput.value) || 1000;
+
+        if (priceHigher < priceLower) {
+            priceError.style.display = 'block';
+            return;
+        }
+
+        priceError.style.display = 'none';
+        updateFilters();
+    };
+
     //stuff to filter
     function updateFilters() {
         const selectedCategories = Array.from(document.querySelectorAll('input[name="categories[]"]:checked'))
@@ -181,11 +210,17 @@
             .map(checkbox => checkbox.value);
 
 
+        const priceLower = document.querySelector('input[name="price_lower"]').value;
+        const priceHigher = document.querySelector('input[name="price_higher"]').value;
+        const priceError = document.getElementById('price-error');
+
         const url = new URL(window.location.href);
+
+
 
         const keysToDelete = [];
         url.searchParams.forEach((value, key) => {
-            if (key === 'categories[]' || key === 'platforms[]' || key === 'regions[]' || key === 'types[]') {
+            if (key === 'categories[]' || key === 'platforms[]' || key === 'regions[]' || key === 'types[]'|| key === 'price_lower' || key === 'price_higher') {
                 keysToDelete.push(key);
             }
         });
@@ -197,6 +232,14 @@
         selectedRegions.forEach(region => url.searchParams.append('regions[]', region));
         selectedTypes.forEach(type => url.searchParams.append('types[]', type));
 
+        if (priceLower) {
+            url.searchParams.append('price_lower', priceLower);
+        }
+        if (priceHigher) {
+            url.searchParams.append('price_higher', priceHigher);
+        }
+
         window.location.href = url.toString();
     }
+
 </script>
