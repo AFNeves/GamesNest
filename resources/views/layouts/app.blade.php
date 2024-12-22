@@ -26,7 +26,7 @@
     </head>
     <body>
         <header class="{{ !View::hasSection('search-bar') && !View::hasSection('header-options') ? 'justify-center' : 'justify-between' }}">
-            <a href="/" class="flex items-center h-1/2 space-x-2">
+            <a href="/" class="flex items-center h-1/2 space-x-2 {{ !View::hasSection('search-bar') && !View::hasSection('header-options') ? 'justify-center' : '' }}">
                 <img src="{{ asset('images/logo.svg') }}" alt="" class="h-full w-auto"/>
                 <span class="header-logo-text">GamesNest</span>
             </a>
@@ -44,7 +44,9 @@
             @yield('content')
         </main>
 
-        <footer class="{{ !View::hasSection('footer-logo') && !View::hasSection('footer-nav') ? 'justify-center bg-transparent' : 'justify-between' }}">
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+        <footer class="bg-transparent {{ !View::hasSection('footer-logo') && !View::hasSection('footer-nav') ? 'justify-center' : 'justify-between' }}">
             @hasSection('footer-logo')
                 @yield('footer-logo')
             @endif

@@ -11,11 +11,8 @@ SET search_path TO lbaw24105;
 -----------------------------------------
 
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS payment_methods CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS promotions CASCADE;
-DROP TABLE IF EXISTS discounts CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS product_keys CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
@@ -67,19 +64,12 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL CONSTRAINT auth_username_uk UNIQUE,
     email VARCHAR(255) NOT NULL CONSTRAINT auth_email_uk UNIQUE,
     password VARCHAR(255) NOT NULL,
-    profile_picture TEXT NOT NULL DEFAULT 'default.png',
-    preferred_address address,
+    profile_picture VARCHAR(255) NOT NULL DEFAULT 'default.png',
     remember_token VARCHAR(255),
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT auth_username_length CHECK (LENGTH(username) >= 5 AND LENGTH(username) <= 20)
-);
-
-CREATE TABLE payment_methods (
-    id SERIAL PRIMARY KEY,
-    provider provider NOT NULL,
-    details TEXT NOT NULL,
-    user_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    is_blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT admin_not_blocked_ck CHECK ( NOT (is_admin AND is_blocked)),
+    CONSTRAINT auth_username_length_ck CHECK (LENGTH(username) >= 5 AND LENGTH(username) <= 20)
 );
 
 CREATE TABLE orders (
@@ -105,46 +95,25 @@ CREATE TABLE transactions (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
 
-CREATE TABLE promotions (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL CONSTRAINT promotion_name_uk UNIQUE,
-    description TEXT NOT NULL
-);
-
-CREATE TABLE discounts (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL CONSTRAINT discount_name_uk UNIQUE,
-    percentage DECIMAL(3,2) NOT NULL,
-    start_date TIMESTAMP NOT NULL DEFAULT now(),
-    end_date TIMESTAMP NOT NULL,
-    promotion_id INT,
-    CONSTRAINT discount_dates_ck CHECK (end_date > start_date),
-    CONSTRAINT discount_percent_ck CHECK (percentage > 0 AND percentage < 1),
-    FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE
-);
-
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL CONSTRAINT product_title_uk UNIQUE,
     description TEXT NOT NULL,
-    images TEXT NOT NULL,
     type product_type NOT NULL,
     platform platform NOT NULL,
     region region NOT NULL,
     price DECIMAL(5,2) NOT NULL,
     rating DECIMAL(3,2),
     visibility BOOLEAN NOT NULL DEFAULT TRUE,
-    discount_id INT,
     CONSTRAINT product_price_ck CHECK (price > 0),
-    CONSTRAINT product_rating_ck CHECK (rating >= 0 AND rating <= 5),
-    FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE SET NULL
+    CONSTRAINT product_rating_ck CHECK (rating >= 0 AND rating <= 5)
 );
 
 CREATE TABLE product_keys (
     id SERIAL PRIMARY KEY,
     key VARCHAR(255) NOT NULL CONSTRAINT product_key_uk UNIQUE,
-    order_id INT,
     product_id INT NOT NULL,
+    order_id INT DEFAULT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
@@ -295,12 +264,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_order_status
-    AFTER INSERT
-    ON transactions
-    FOR EACH ROW
-EXECUTE FUNCTION update_order_status();
 
 -- TRIGGER03
 

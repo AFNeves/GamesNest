@@ -22,7 +22,7 @@
         <div class="flex space-x-4">
             <div class="flex flex-col space-y-4 w-full min-w-96 max-w-96">
                 <!-- Main Product Image -->
-                <img src="{{ url($product->images . '/' . scandir($product->images)[2]) }}" alt="{{ $product->title }}" class="w-full h-auto rounded-lg">
+                <img src="{{ url('/images/products/' . $product->id . '/' . scandir('images/products/' . $product->id)[2]) }}" alt="{{ $product->title }}" class="w-full h-auto rounded-lg">
 
                 <!-- Additional Images -->
                 <div class="flex flex-grow justify-between items-center w-full space-x-4">

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -39,6 +42,24 @@ class ProductController extends Controller
             'visibility' => 'required|boolean',
             'discount_id' => 'nullable|exists:discounts,id'
         ]);
+    }
+
+    /**
+     * Shows the user management page.
+     */
+    public function manage(): View|Response
+    {
+        try {
+            $this->authorize('manage', Auth::user());
+
+            $products = Product::orderBy('visibility')
+                ->orderBy('id', 'asc')
+                ->paginate(10);
+
+            return view('pages.admin.product-panel', compact('products'));
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        }
     }
 
     /**
@@ -112,13 +133,13 @@ class ProductController extends Controller
         try {
             $product = Product::findOrFail($id);
 
-            $this->authorize('search', $product);
+            if (!$product->visibility) {
+                $this->authorize('show', Product::class);
+            }
 
             return view('pages.product', ['product' => $product]);
-        } catch (AuthorizationException) {
-            return response()->view('pages.error', ['errorCode' => '403'], 403);
-        } catch (ModelNotFoundException) {
-            return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (ModelNotFoundException|AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '404'], 404);
         }
     }
 
@@ -138,7 +159,7 @@ class ProductController extends Controller
                 ->first();
 
             if ($exactMatch) {
-                return redirect()->route('product', ['id' => $exactMatch->id]);
+                return redirect()->route('product.show', ['id' => $exactMatch->id]);
             }
 
             return redirect()->route('display_search', ['query' => $query['query']]);
@@ -165,7 +186,7 @@ class ProductController extends Controller
         } catch (AuthorizationException) {
             return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ModelNotFoundException) {
-            return response()->view('pages.error', ['errorCode' => '400'], 400);
+            return response()->view('pages.error', ['errorCode' => '404'], 404);
         }
     }
 
@@ -219,11 +240,11 @@ class ProductController extends Controller
             $regions = Region::cases();
             $types = ProductType::cases();
 
-            return view('pages.edit-product', ['product' => $product, 'platforms' => $platforms, 'regions' => $regions, 'types' => $types]);
+            return view('pages.admin.edit-product', ['product' => $product, 'platforms' => $platforms, 'regions' => $regions, 'types' => $types]);
         } catch (AuthorizationException) {
             return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ModelNotFoundException) {
-            return response()->view('pages.error', ['errorCode' => '400'], 400);
+            return response()->view('pages.error', ['errorCode' => '404'], 404);
         }
     }
 
@@ -283,6 +304,38 @@ class ProductController extends Controller
             return response()->view('pages.error', ['errorCode' => '403'], 403);
         } catch (ModelNotFoundException | ValidationException) {
             return response()->view('pages.error', ['errorCode' => '400'], 400);
+        }
+    }
+
+    /**
+     * Toggles a product visibility
+     */
+    public function visible(int $id): JsonResponse|Response
+    {
+        try {
+            $product = Product::findOrFail($id);
+
+            $this->authorize('visible', $product);
+
+            $product->visibility = !$product->visibility;
+
+            $product->save();
+
+            $toast = (object) [
+                'id' => 'toast-' . uniqid(),
+                'class' => 'toast-success',
+                'icon' => 'images/icons/check.svg',
+                'title' => 'Success!',
+                'message' => 'Product has been set to ' . ($product->visibility ? 'invisible' : 'visible') . '.',
+            ];
+
+            $toastHtml = view('widgets.toast', ['toast' => $toast])->render();
+
+            return response()->json(['success' => true, 'is_blocked' => $product->visibility , 'toast' => $toastHtml]);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
 }

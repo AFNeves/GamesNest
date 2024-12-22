@@ -8,6 +8,22 @@ use Illuminate\Support\Facades\Auth;
 class UserPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Shows the user management page.
+     */
+    public function dashboard(User $authed, User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    /**
      * Shows the user management page.
      */
     public function manage(User $authed, User $user): bool
@@ -45,6 +61,11 @@ class UserPolicy
     public function update(User $authed, User $user): bool
     {
         return (Auth::check() && Auth::user()->is_admin) || $user->id === Auth::id();
+    }
+
+    public function block(User $authed, User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin && !$user->is_admin;
     }
 
     /**

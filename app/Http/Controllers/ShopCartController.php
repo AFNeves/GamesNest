@@ -65,7 +65,7 @@ class ShopCartController extends Controller
     /**
      * Updates the quantity of a product in the shopping cart.
      */
-    public function update(Request $request): RedirectResponse|Response
+    public function update(Request $request): JsonResponse|RedirectResponse|Response
     {
         try {
             $validated = $request->validate([
@@ -79,10 +79,20 @@ class ShopCartController extends Controller
 
             $this->authorize('update', $item);
 
-            $stock = Key::where('product_id', $product->id)->where('order_id', '!=', NULL)->count();
+            $stock = Key::where('product_id', $product->id)->where('order_id', NULL)->count();
 
             if($stock < $validated['quantity']) {
-                return response()->view('pages.error', ['errorCode' => '400'], 400);
+                $toast = (object) [
+                    'id' => 'toast-' . uniqid(),
+                    'class' => 'toast-error',
+                    'icon' => 'images/icons/error.svg',
+                    'title' => 'Error!',
+                    'message' => 'Not enough stock available for this product.',
+                ];
+
+                $toastHtml = view('widgets.toast', ['toast' => $toast])->render();
+
+                return response()->json(['toast' => $toastHtml]);
             }
 
             $product->shoppingCarts()->updateExistingPivot(Auth::id(), ['quantity' => $validated['quantity']]);

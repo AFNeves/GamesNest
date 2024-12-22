@@ -20,7 +20,7 @@
     @if ($keys->isEmpty())
         <span class="text-2xl">No keys found</span>
     @else
-        <span class="text-2xl">
+        <span class="text-2xl mb-4">
             Your Key Inventory
         </span>
         <div class="container mx-auto px-4">
@@ -33,7 +33,6 @@
                                 <tr>
                                     <th scope="col">Order Id</th>
                                     <th scope="col">Game</th>
-                                    <th scope="col">Price</th>
                                     <th scope="col">Platform</th>
                                     <th scope="col">Region</th>
                                     <th scope="col">Key</th>
@@ -44,30 +43,11 @@
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $key->id }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $key->title }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $key->price }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $key->platform }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $key->region }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $key->key }}</td>
                                     </tr>
                                 @endforeach
-
-                                {{--
-                                    @foreach($keys as $key)
-                                        <table>
-                                            <td></td>
-                                            <td>Order Id</td>
-                                            <td>Game</td>
-                                            <td>Price</td>
-                                            <td>Delivery Date</td>
-                                            <td>Platform</td>
-                                            <td>Region</td>
-                                            <td>Key</td>
-                                            @each('partials.key', $key, 'key')
-                                            <article class="key">
-                                            </article>
-                                        </table>
-                                    @endforeach
-                                 --}}
                                 </tbody>
                             </table>
                         </div>

@@ -14,7 +14,11 @@ body {
 }
 
 main {
-    @apply flex flex-col flex-grow items-center justify-center mt-20 py-4;
+    @apply flex flex-col flex-grow items-center justify-center py-4;
+}
+
+.header-fixed {
+    @apply mt-20;
 }
 
 a {
@@ -81,26 +85,115 @@ div.profile-div a {
     @apply w-44 h-44;
 }
 
-/* ----- Edit Users Page ----- */
+/* ----- Admin Dashboard Page ----- */
 
-.users-row {
+.admin-dashboard {
+    @apply flex flex-col items-start justify-center gap-4;
+}
+
+.admin-dashboard span {
+    @apply text-2xl font-audio;
+}
+
+.admin-dashboard a {
+    @apply text-lg text-white hover:text-primary cst-tr;
+}
+
+/* ----- Admin User Management Page ----- */
+
+th {
+    @apply px-4 py-3 text-left text-sm text-dark uppercase tracking-wider;
+}
+
+.users-row, .products-row {
     @apply odd:bg-light even:bg-very-light;
 }
 
 tr.users-row td {
-    @apply text-very-dark text-sm whitespace-nowrap px-6 py-4;
+    @apply pl-4 text-dark text-base whitespace-nowrap cst-tr;
 }
 
+.view-profile-button, .edit-profile-button, .order-history-button {
+    @apply text-blue-600 hover:text-blue-800;
+}
 
+.block-user-button, .delete-user-button, .toggle-visibility-button {
+    @apply text-red-600 hover:text-red-800;
+}
 
+/* ----- TOAST ----- */
 
+.toast-container {
+    @apply fixed bottom-5 right-5 z-50 flex flex-col gap-2;
+}
 
+.toast {
+    @apply flex items-center justify-between cst-tr;
+    @apply rounded-2xl px-3 pt-2 pb-2.5 w-full max-w-[400px];
+}
 
+.toast-icon {
+    @apply flex justify-center items-center w-10 h-10 rounded-full;
+}
 
+.toast-icon-svg {
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    @apply bg-white h-5 w-5;
+}
 
+.toast-close {
+    @apply flex justify-center items-center cursor-pointer;
+}
 
+.toast-close-svg {
+    @apply h-6 w-6 opacity-70 hover:scale-105 cst-tr;
+}
 
+/* Toast Success */
 
+.toast-success {
+    @apply border-2 border-[#88E59B] bg-[#F1F8F4];
+}
+
+.toast-success .toast-icon {
+    @apply bg-[#50DC6C];
+}
+
+.toast-success .toast-icon-svg {
+    mask-image: url(../images/icons/check.svg);
+    -webkit-mask-image: url(../images/icons/check.svg);
+}
+
+/* Toast Warning */
+
+.toast-warning {
+    @apply border-2 border-[#fdd36e] bg-[#fef8eb];
+}
+
+.toast-warning .toast-icon {
+    @apply bg-[#fec022];
+}
+
+.toast-warning .toast-icon-svg {
+    mask-image: url(../images/icons/warning.svg);
+    -webkit-mask-image: url(../images/icons/warning.svg);
+}
+
+/* Toast Error */
+
+.toast-error {
+    @apply border-2 border-[#fa8c8a] bg-[#fbefeb];
+}
+
+.toast-error .toast-icon {
+    @apply bg-[#fc5758];
+}
+
+.toast-error .toast-icon-svg {
+    mask-image: url(../images/icons/error.svg);
+    -webkit-mask-image: url(../images/icons/error.svg);
+}
 
 /* ------- Forms Styles ------- */
 
@@ -113,10 +206,6 @@ tr.users-row td {
 
 }
 
-th {
-    @apply px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider;
-}
-
 /* ------ Custom Widgets ------ */
 
 .hover-scale {
@@ -125,4 +214,17 @@ th {
 
 .address-input {
     @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 ;
+}
+
+
+/* ----- Paginator ----- */
+
+.paginator {
+    @apply flex items-center justify-between w-full;
+}
+
+.paginator-button {
+    @apply flex items-center justify-center;
+    @apply h-12 w-[120px] text-base font-medium rounded-lg cst-tr;
+    @apply bg-medium hover:bg-medium-light text-white border border-light;
 }

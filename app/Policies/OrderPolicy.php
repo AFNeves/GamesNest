@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 class OrderPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
      * Shows the details of an order.
      */
     public function show(User $user, Order $order): bool

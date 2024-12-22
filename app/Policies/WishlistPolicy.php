@@ -6,7 +6,15 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 
-class WishlistPolicy{
+class WishlistPolicy
+{
+    /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
 
     public function show($user):bool{
         return Auth::check() && (Auth::user()->is_admin || Auth::id() === $user->id);

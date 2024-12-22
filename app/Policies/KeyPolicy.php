@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 class KeyPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
      * Shows the key with the given id.
      */
     public function fetch(User $user, Key $key): bool

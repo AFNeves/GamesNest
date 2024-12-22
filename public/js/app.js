@@ -10,10 +10,17 @@ function onScroll() {
     }
 }
 
-function toggleAnswer(element) {
-    const answer = element.nextElementSibling;
-    answer.style.display = answer.style.display === "block" ? "none" : "block";
-    element.classList.toggle("active");
+function showToast(toastHTML, timeout = 5000) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastElement = document.createElement('div');
+    toastElement.innerHTML = toastHTML;
+    toastContainer.appendChild(toastElement);
+
+    toastElement.querySelector('.toast-close').addEventListener('click', function() {
+        toastElement.remove();
+    });
+
+    setTimeout(() => toastElement.remove(), timeout);
 }
 
 /* Event Listeners */
@@ -21,219 +28,126 @@ function addEventListeners() {
 
     /* Header Element */
 
-    const specialHeadersPaths = ['/login', '/register', '/about', '/faq', '/contact'];
+    const staticPages = ['/about', '/services', '/faq', '/contact'];
+    const specialHeadersPaths = [...staticPages, '/login', '/register', '/admin/users'];
     if (!specialHeadersPaths.includes(window.location.pathname)) {
         // Fix header color
-        window.addEventListener('scroll', onScroll);
-        onScroll();
+        window.addEventListener('scroll', onScroll); onScroll();
+        document.querySelector('header').classList.add('fixed');
+        document.querySelector('main').classList.add('header-fixed');
         // Fix footer color
         document.querySelector('footer').classList.remove('bg-transparent');
     }
 
-    document.getElementById('searchSubmit').addEventListener('click', function () {
-        document.getElementById('searchForm').submit();
-    });
+    /* Search Bar Icons */
+    if (document.querySelector('form.search-form')) {
+        document.getElementById('searchSubmit').addEventListener('click', function () {
+            document.getElementById('searchForm').submit();
+        });
 
-    document.getElementById('searchClear').addEventListener('click', function () {
-        document.getElementById('searchInput').value = '';
-    });
+        document.getElementById('searchClear').addEventListener('click', function () {
+            document.getElementById('searchInput').value = '';
+        });
+    }
 
     /* Edit Profile Page */
+    if (window.location.pathname.match(/^\/profile\/\d+\/edit$/)) {
+        document.getElementById('profile-picture-overlay').addEventListener('click', function () {
+            document.getElementById('profile-picture-input').click();
+        });
 
-    document.getElementById('profile-picture-overlay').addEventListener('click', function () {
-        document.getElementById('profile-picture-input').click();
-    });
+        document.getElementById('profile-picture-input').addEventListener('change', function (event) {
+            const file = event.target.files[0];
 
-    document.getElementById('profile-picture-input').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function () {
-                document.getElementById('profile-picture').src = reader.result;
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    document.getElementById('profile-picture').src = reader.result;
+                }
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file);
-        }
+        });
+    }
+
+    /* TODO: AJAX Requests */
+
+    /* Block User Request */
+    document.querySelectorAll('button.block-user-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const userID = this.dataset.userId;
+
+            fetch(`/admin/users/${userID}/block`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.toast);
+                        button.textContent = data.is_blocked ? 'Unblock' : 'Block';
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
     });
 
-    /* TODO: Remove before production */
+    /* Delete User Request */
+    document.querySelectorAll('button.delete-user-button').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this account?')) {
+                const userID = this.dataset.userId;
 
-    let itemCheckers = document.querySelectorAll('article.card li.item input[type=checkbox]');
-    [].forEach.call(itemCheckers, function (checker) {
-        checker.addEventListener('change', sendItemUpdateRequest);
+                fetch(`/profile/${userID}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(data.toast);
+                            document.getElementById(`row-${data.deleted}`).remove();
+                        } else {
+                            alert(`Error: ${data.error}`);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
     });
 
-    let itemCreators = document.querySelectorAll('article.card form.new_item');
-    [].forEach.call(itemCreators, function (creator) {
-        creator.addEventListener('submit', sendCreateItemRequest);
+    /* Toggle Product Visibility Request */
+    document.querySelectorAll('button.toggle-visibility-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const productID = this.dataset.productId;
+
+            fetch(`/admin/products/${productID}/visible`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.toast);
+                        button.textContent = data.visibility ? 'Visible' : 'Invisible';
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+        });
     });
-
-    let itemDeleters = document.querySelectorAll('article.card li a.delete');
-    [].forEach.call(itemDeleters, function (deleter) {
-        deleter.addEventListener('click', sendDeleteItemRequest);
-    });
-
-    let cardDeleters = document.querySelectorAll('article.card header a.delete');
-    [].forEach.call(cardDeleters, function (deleter) {
-        deleter.addEventListener('click', sendDeleteCardRequest);
-    });
-
-    let cardCreator = document.querySelector('article.card form.new_card');
-    if (cardCreator != null)
-        cardCreator.addEventListener('submit', sendCreateCardRequest);
-}
-
-function encodeForAjax(data) {
-    if (data == null) return null;
-    return Object.keys(data).map(function (k) {
-        return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
-    }).join('&');
-}
-
-function sendAjaxRequest(method, url, data, handler) {
-    let request = new XMLHttpRequest();
-
-    request.open(method, url, true);
-    request.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
-    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    request.addEventListener('load', handler);
-    request.send(encodeForAjax(data));
-}
-
-function sendItemUpdateRequest() {
-    let item = this.closest('li.item');
-    let id = item.getAttribute('data-id');
-    let checked = item.querySelector('input[type=checkbox]').checked;
-
-    sendAjaxRequest('post', '/api/item/' + id, {done: checked}, itemUpdatedHandler);
-}
-
-function sendDeleteItemRequest() {
-    let id = this.closest('li.item').getAttribute('data-id');
-
-    sendAjaxRequest('delete', '/api/item/' + id, null, itemDeletedHandler);
-}
-
-function sendCreateItemRequest(event) {
-    let id = this.closest('article').getAttribute('data-id');
-    let description = this.querySelector('input[name=description]').value;
-
-    if (description != '')
-        sendAjaxRequest('put', '/api/cards/' + id, {description: description}, itemAddedHandler);
-
-    event.preventDefault();
-}
-
-function sendDeleteCardRequest(event) {
-    let id = this.closest('article').getAttribute('data-id');
-
-    sendAjaxRequest('delete', '/api/cards/' + id, null, cardDeletedHandler);
-}
-
-function sendCreateCardRequest(event) {
-    let name = this.querySelector('input[name=name]').value;
-
-    if (name != '')
-        sendAjaxRequest('put', '/api/cards/', {name: name}, cardAddedHandler);
-
-    event.preventDefault();
-}
-
-function itemUpdatedHandler() {
-    let item = JSON.parse(this.responseText);
-    let element = document.querySelector('li.item[data-id="' + item.id + '"]');
-    let input = element.querySelector('input[type=checkbox]');
-    element.checked = item.done == "true";
-}
-
-function itemAddedHandler() {
-    if (this.status != 200) window.location = '/';
-    let item = JSON.parse(this.responseText);
-
-    // Create the new item
-    let new_item = createItem(item);
-
-    // Insert the new item
-    let card = document.querySelector('article.card[data-id="' + item.card_id + '"]');
-    let form = card.querySelector('form.new_item');
-    form.previousElementSibling.append(new_item);
-
-    // Reset the new item form
-    form.querySelector('[type=text]').value = "";
-}
-
-function itemDeletedHandler() {
-    if (this.status != 200) window.location = '/';
-    let item = JSON.parse(this.responseText);
-    let element = document.querySelector('li.item[data-id="' + item.id + '"]');
-    element.remove();
-}
-
-function cardDeletedHandler() {
-    if (this.status != 200) window.location = '/';
-    let card = JSON.parse(this.responseText);
-    let article = document.querySelector('article.card[data-id="' + card.id + '"]');
-    article.remove();
-}
-
-function cardAddedHandler() {
-    if (this.status != 200) window.location = '/';
-    let card = JSON.parse(this.responseText);
-
-    // Create the new card
-    let new_card = createCard(card);
-
-    // Reset the new card input
-    let form = document.querySelector('article.card form.new_card');
-    form.querySelector('[type=text]').value = "";
-
-    // Insert the new card
-    let article = form.parentElement;
-    let section = article.parentElement;
-    section.insertBefore(new_card, article);
-
-    // Focus on adding an item to the new card
-    new_card.querySelector('[type=text]').focus();
-}
-
-function createCard(card) {
-    let new_card = document.createElement('article');
-    new_card.classList.add('card');
-    new_card.setAttribute('data-id', card.id);
-    new_card.innerHTML = `
-  
-    <header>
-      <h2><a href="cards/${card.id}">${card.name}</a></h2>
-      <a href="#" class="delete">&#10761;</a>
-    </header>
-    <ul></ul>
-    <form class="new_item">
-      <input name="description" type="text">
-    </form>`;
-
-    let creator = new_card.querySelector('form.new_item');
-    creator.addEventListener('submit', sendCreateItemRequest);
-
-    let deleter = new_card.querySelector('header a.delete');
-    deleter.addEventListener('click', sendDeleteCardRequest);
-
-    return new_card;
-}
-
-function createItem(item) {
-    let new_item = document.createElement('li');
-    new_item.classList.add('item');
-    new_item.setAttribute('data-id', item.id);
-    new_item.innerHTML = `
-    <label>
-      <input type="checkbox"> <span>${item.description}</span><a href="#" class="delete">&#10761;</a>
-    </label>
-    `;
-
-    new_item.querySelector('input').addEventListener('change', sendItemUpdateRequest);
-    new_item.querySelector('a.delete').addEventListener('click', sendDeleteItemRequest);
-
-    return new_item;
 }
 
 addEventListeners();
