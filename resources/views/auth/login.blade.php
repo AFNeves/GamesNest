@@ -22,6 +22,6 @@
             <a href="{{ route('register') }}" class="text-lg hover:text-primary cst-tr">Don't have an account? Let's fix that!</a>
         </div>
 
-        <a href="{{ route('password-recovery-form') }}" class="text-lg text-blue-500 hover:text-blue-700 mt-4 inline-block">Forgot your password?</a>
+        <a href="{{ route('password-reset') }}" class="text-lg text-blue-500 hover:text-blue-700 mt-4 inline-block">Forgot your password?</a>
     </form>
 @endsection

@@ -23,13 +23,24 @@ Route::controller(LoginController::class)->group(function () {
     Route::get('/logout', 'logout')->name('logout');
 });
 
-Route::get('/password-recovery', function () {
-    return view('password-reset');
-})->name('password-recovery-form');
+// Reset Password
 
-Route::post('/password-recovery', [PasswordRecoveryController::class, 'sendResetLink'])->name('password-reset');
+// Route to show the password reset form
+Route::get('/password-reset', function () {
+    return view('password-reset'); 
+})->name('password-reset-form');
 
+// Route to handle the form submission and send the recovery link
+Route::post('/password-reset', [PasswordRecoveryController::class, 'sendRecoveryLink'])
+    ->name('password-reset');
 
+// Route to display the password reset form after clicking the email link
+Route::get('/password/reset', [PasswordRecoveryController::class, 'showResetForm'])
+    ->name('password.reset');
+
+// Route to handle updating the password
+Route::post('/password/update', [PasswordRecoveryController::class, 'updatePassword'])
+    ->name('password.update');
 
 // Registration
 Route::controller(RegisterController::class)->group(function () {
