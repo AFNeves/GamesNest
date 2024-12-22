@@ -11,6 +11,7 @@ use App\Http\Controllers\ShopCartController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\PasswordRecoveryController;
 
 // Home
 Route::get('/', [ProductController::class, 'index'])->name('home');
@@ -21,6 +22,25 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('/login', 'authenticate')->name('login-action');
     Route::get('/logout', 'logout')->name('logout');
 });
+
+// Reset Password
+
+// Route to show the password reset form
+Route::get('/password-reset', function () {
+    return view('password-reset'); 
+})->name('password-reset-form');
+
+// Route to handle the form submission and send the recovery link
+Route::post('/password-reset', [PasswordRecoveryController::class, 'sendRecoveryLink'])
+    ->name('password-reset');
+
+// Route to display the password reset form after clicking the email link
+Route::get('/password/reset', [PasswordRecoveryController::class, 'showResetForm'])
+    ->name('password.reset');
+
+// Route to handle updating the password
+Route::post('/password/update', [PasswordRecoveryController::class, 'updatePassword'])
+    ->name('password.update');
 
 // Registration
 Route::controller(RegisterController::class)->group(function () {
