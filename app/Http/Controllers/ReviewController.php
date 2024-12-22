@@ -86,96 +86,110 @@ class ReviewController extends Controller
     /**
      * Shows the edit review widget.
      */
-    public function edit(int $id): View|JsonResponse
+    public function edit($id): View
     {
         try {
             $review = Review::findOrFail($id);
 
-            $this->authorize('edit', $review);
+            if (auth()->id() !== $review->user_id) {
+                abort(403, 'Unauthorized action.');
+            }
 
             return view('widgets.edit-review', ['review' => $review]);
         } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Review not found'], 404);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            abort(404, 'Review not found.');
         }
     }
 
     /**
      * Inserts a new review.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         try {
-            $review = new Review();
-
-            $this->authorize('store', $review);
-
+            $this->authorize('store', Review::class);
+    
+     
             $validated = $this->validateReview($request);
-
-            $exisingReview = Review::where('product_id', $validated['product_id'])
-                                   ->where('user_id', $validated['user_id'])
-                                   ->first();
-
-            if ($exisingReview) {
-                return response()->json(['error' => 'Review already exists'], 409);
+    
+ 
+            $existingReview = Review::where('product_id', $validated['product_id'])
+                                    ->where('user_id', $validated['user_id'])
+                                    ->first();
+    
+            if ($existingReview) {
+                return redirect()->back()->with('error', 'You have already reviewed this product.');
             }
 
+            $review = new Review();
             $review->fill($validated);
-
             $review->save();
-
-            return response()->json($review);
+    
+            return redirect()->route('product', ['id' => $validated['product_id']])
+                             ->with('success', 'Review submitted successfully!');
         } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        } catch (ValidationException $e) {
+            return redirect()->back()
+                             ->withErrors($e->errors())
+                             ->withInput();
         }
     }
+    
+    
 
     /**
      * Updates a review.
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, $id)
     {
-        try {
-            $review = Review::findOrFail($id);
+        $review = Review::findOrFail($id);
+    
 
-            $this->authorize('update', $review);
+        $request->validate([
+            'text' => 'required|string|max:1000',
+            'rating' => 'required|numeric|min:0|max:5',
+        ]);
+    
 
-            $validated = $this->validateReview($request);
-
-            $review->fill($validated);
-
-            $review->save();
-
-            return response()->json($review);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Review not found'], 404);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        } catch (ValidationException) {
-            return response()->json(['error' => 'Validation failed'], 400);
-        }
+        $review->text = $request->input('text');
+        $review->rating = $request->input('rating');
+        $review->save();
+    
+        return redirect()->route('product', ['id' => $review->product_id])->with('success', 'Review updated successfully');
     }
 
     /**
      * Deletes a review.
      */
-    public function destroy(int $id): JsonResponse
-    {
-        try {
-            $review = Review::findOrFail($id);
+public function destroy($id)
+{
+    try {
 
-            $this->authorize('destroy', $review);
+        $review = Review::findOrFail($id);
 
-            $review->delete();
 
-            return response()->json($review);
-        } catch (ModelNotFoundException) {
-            return response()->json(['error' => 'Review not found'], 404);
-        } catch (AuthorizationException) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        if (auth()->id() !== $review->user_id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
         }
+
+
+        $productId = $review->product_id;
+
+
+        $review->delete();
+
+
+        return redirect()->route('product', $productId)->with('success', 'Review deleted successfully.');
+    } catch (ModelNotFoundException $e) {
+
+        return redirect()->back()->with('error', 'Review not found.');
+    } catch (\Exception $e) {
+
+        \Log::error('Error deleting review: ' . $e->getMessage());
+
+        return redirect()->back()->with('error', 'Failed to delete review.');
     }
+}
+
 }

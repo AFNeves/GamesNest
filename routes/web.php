@@ -103,6 +103,12 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('key.inventory', ['id' => Auth::id()]);
         })->name('keys.redirect');
     });
+
+    // reviews
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
+    Route::delete('/review/{id}', [ReviewController::class, 'destroy'])->name('review.destroy');
+    Route::get('/review/{id}/edit', [ReviewController::class, 'edit'])->name('review.edit');
+    Route::put('/review/{id}', [ReviewController::class, 'update'])->name('review.update');
 });
 
 // About Us

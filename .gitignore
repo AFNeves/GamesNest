@@ -3,7 +3,6 @@
 /public/build
 /public/hot
 /public/storage
-/public/css/tailwind.css
 /storage/*.key
 /vendor
 .env
