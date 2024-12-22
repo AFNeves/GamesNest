@@ -39,4 +39,14 @@ class OrderPolicy
     {
         return Auth::check() && !(Auth::user()->is_admin) && ($user->shoppingCart()->count() > 0);
     }
+
+    public function confirm(User $user, Order $order): bool
+    {
+        return Auth::check() && !(Auth::user()->is_admin) && ($user->id == Auth::id());
+    }
+
+    public function cancel(User $user, Order $order): bool
+    {
+        return Auth::check() && !(Auth::user()->is_admin) && ($user->id == Auth::id());
+    }
 }
