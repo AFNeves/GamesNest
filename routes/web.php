@@ -72,6 +72,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/checkout', 'store')->name('checkout.action');
         Route::get('/orders/{id}', 'listUserOrders')->name('order.history');
         Route::get('/orders/{user_id}/{order_id}', 'show')->name('order.details');
+        Route::post('/order/{id}/confirm', 'confirm')->name('order.confirm');
+        Route::post('order/{id}/delete', 'cancel')->name('order.delete');
     });
 
     // Keys

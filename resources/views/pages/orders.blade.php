@@ -41,7 +41,8 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($orders as $order)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{$order->id}}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <a href="{{route('order.details',['user_id' => Auth::user()->id, 'order_id' => $order->id])}}" class="text-sm text-gray-500">{{$order->id}}</a></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ \Carbon\Carbon::parse($order->deliver_date)->format('F j, Y') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->status }}</td>
                                         @if($order->transaction()->exists())

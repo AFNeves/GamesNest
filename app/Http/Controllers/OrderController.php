@@ -146,4 +146,50 @@ class OrderController extends Controller
             return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
     }
+
+    public function confirm(int $id): RedirectResponse|Response
+    {
+        try {
+            $order = Order::findOrFail($id);
+            $this->authorize('confirm', $order);
+
+
+            $order->status = Status::Completed;
+            $order->save();
+
+            return redirect()->route('order.details', ['success' => 'Keys redeemed successfully.', 'user_id' => Auth::id() , 'order_id' => $order->id]);
+        }
+        catch (ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        }
+    }
+
+    public function cancel(int $id): RedirectResponse|Response
+    {
+        try {
+
+            $order = Order::findOrFail($id);
+            $this->authorize('cancel', $order);
+
+            $order->transaction()->delete();
+            $keys = $order->keys;
+
+            foreach ($keys as $key) {
+                $key->order->detach();
+            }
+
+            $order->delete();
+
+
+
+            return redirect()->route('order.history', ['success' => 'Order canceled successfully.', 'id' => Auth::id()]);
+        }
+        catch (ValidationException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        }
+    }
 }
