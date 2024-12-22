@@ -4,6 +4,8 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Review;
+use Illuminate\Support\Facades\Auth;
+
 
 class ReviewPolicy
 {
@@ -42,11 +44,11 @@ class ReviewPolicy
     /**
      * Inserts a new review.
      */
-    public function store(User $user, Review $review): bool
+    public function store(User $user): bool
     {
-        return true;
+        return Auth::check();
     }
-
+    
     /**
      * Updates a review.
      */
