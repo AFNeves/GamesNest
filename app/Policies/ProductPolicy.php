@@ -3,10 +3,19 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
 class ProductPolicy
 {
+    /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
     /**
      * Shows the first 10 products using pagination.
      */
@@ -20,29 +29,13 @@ class ProductPolicy
      */
     public function show(User $user): bool
     {
-        return true;
-    }
-
-    /**
-     * Searches for exact matches and redirects otherwise.
-     */
-    public function search(User $user): bool
-    {
-        return true;
+        return Auth::check() && Auth::user()->is_admin;
     }
 
     /**
      * Performs a full-text search.
      */
     public function ftsearch(User $user): bool
-    {
-        return true;
-    }
-
-    /**
-     * Shows the results of full text search.
-     */
-    public function display(User $user): bool
     {
         return true;
     }
@@ -75,6 +68,14 @@ class ProductPolicy
      * Updates a product.
      */
     public function update(User $user): bool
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    /**
+     * Toggles a product visibility.
+     */
+    public function visible(User $authed): bool
     {
         return Auth::check() && Auth::user()->is_admin;
     }

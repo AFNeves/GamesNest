@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Auth;
 class ShopCartPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
      * Shows the shopping cart page.
      */
     public function show(User $user): bool

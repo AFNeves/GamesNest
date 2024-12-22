@@ -13,6 +13,11 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\PasswordRecoveryController;
 
+// Fallback
+Route::fallback(function () {
+    return response()->view('pages.error', ['errorCode' => '404'], 404);
+});
+
 // Home
 Route::get('/', [ProductController::class, 'index'])->name('home');
 
@@ -50,7 +55,7 @@ Route::controller(RegisterController::class)->group(function () {
 
 // Products
 Route::controller(ProductController::class)->group(function () {
-    Route::get('/product/{id}', 'show')->name('product');
+    Route::get('/product/{id}', 'show')->name('product.show');
     Route::get('/product/{id}/edit', 'edit')->name('product.edit');
     Route::post('/product/{id}/edit', 'update')->name('product.update');
     Route::post('/search', 'search')->name('search');
@@ -61,7 +66,10 @@ Route::controller(ProductController::class)->group(function () {
 Route::middleware('auth')->group(function () {
     // User Management
     Route::controller(UserController::class)->group(function () {
-        Route::get('/users', 'manage')->name('management');
+        // User Management Routes
+        Route::get('/admin', 'dashboard')->name('admin');
+        Route::get('/admin/users', 'manage')->name('management');
+        Route::put('/admin/users/{id}/block', 'block')->name('user.block');
         // Profile Page Routes
         Route::get('/profile/{id}', 'show')->name('profile.show');
         Route::get('/profile/{id}/edit', 'edit')->name('profile.edit');
@@ -70,6 +78,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', function () {
             return redirect()->route('profile.show', ['id' => Auth::id()]);
         })->name('profile.redirect');
+    });
+
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('/admin/products', 'manage')->name('product.manage');
+        Route::put('/admin/products/{id}/visible', 'visible')->name('product.visible');
+        // Route::get('/admin/products/create', 'create')->name('product.create');
+        // Route::post('/admin/products/create', 'store')->name('product.store');
+        // Route::delete('/admin/products/{id}', 'destroy')->name('product.destroy');
     });
 
     // Shopping Cart
@@ -98,6 +114,8 @@ Route::middleware('auth')->group(function () {
 
     // Keys
     Route::controller(KeyController::class)->group(function () {
+        Route::get('/admin/product/{id}/keys', 'add')->name('key.add');
+        Route::post('/admin/product/{id}/keys', 'store')->name('key.store');
         Route::get('/keys/{id}', 'list')->name('key.inventory');
         Route::get('/keys', function () {
             return redirect()->route('key.inventory', ['id' => Auth::id()]);
@@ -111,22 +129,21 @@ Route::middleware('auth')->group(function () {
     Route::put('/review/{id}', [ReviewController::class, 'update'])->name('review.update');
 });
 
-// About Us
-Route::get('/about', function () {
-    return view('pages.about');
-})->name('about');
+// Information Pages
+Route::group([], function () {
+    Route::get('/about', function () {
+        return view('pages.info.about');
+    })->name('about');
 
-// FAQ
-Route::get('/faq', function () {
-    return view('pages.faq');
-})->name('faq');
+    Route::get('/services', function () {
+        return view('pages.info.services');
+    })->name('services');
 
-// contact
-Route::get('/contact', function () {
-    return view('pages.contact');
-})->name('contact');
+    Route::get('/faq', function () {
+        return view('pages.info.faq');
+    })->name('faq');
 
-// Fallback
-Route::fallback(function () {
-    return response()->view('pages.error', ['errorCode' => '404'], 404);
+    Route::get('/contact', function () {
+        return view('pages.info.contact');
+    })->name('contact');
 });

@@ -17,7 +17,7 @@
 @endsection
 
 @section('content')
-    <div class="flex">
+    <div class="flex w-full max-w-[1600px] px-4">
         <div class="bg-gray-700 rounded-xl p-2 w-1/4 h-fit space-y-2">
             <h3 class="text-xl font-bold text-white">
                 <button id="catButton" class="inline-flex items-center">
@@ -107,24 +107,25 @@
                 <h1 class="text-4xl">No products found</h1>
             </div>
         @else
-            <div class="flex flex-col flex-grow items-center justify-center w-full px-28">
-                <div class="flex flex-col flex-grow items-center justify-start p-4 w-full bg-gray-600 rounded-xl space-y-4">
+            <div class="flex flex-col flex-grow items-center justify-center w-full pl-4">
+                <div class="flex flex-col flex-grow items-center justify-start p-4 mb-4 w-full bg-gray-600 rounded-xl space-y-4">
                     @foreach($products as $product)
-                        <a href="{{ route('product', ['id' => $product->id]) }}" class="flex w-full bg-gray-800 rounded-xl p-3 space-x-8">
-                            <img src="{{ url($product->images . '/' . scandir($product->images)[2]) }}" alt="{{ $product->title }}" class="w-full max-w-64 h-auto rounded-lg">
+                        <a href="{{ route('product.show', ['id' => $product->id]) }}" class="flex w-full bg-gray-800 rounded-xl p-3 space-x-8">
+                            <img src="{{ url('/images/products/' . $product->id . '/' . scandir('images/products/' . $product->id)[2]) }}" alt="{{ $product->title }}" class="w-full max-w-64 h-auto rounded-lg">
                             <div class="flex flex-col flex-grow justify-evenly">
-                                <h2>{{ $product->title }}</h2>
-                                <span>{{ $product->region }}</span>
-                                <span>{{ $product->price }}</span>
+                                <span class="text-base">{{ $product->title }}</span>
+                                <span class="text-base text-primary">{{ $product->region }}</span>
+                                <span class="text-lg">{{ $product->price }}€</span>
                             </div>
                         </a>
                     @endforeach
                 </div>
+
+                {{ $products->links() }}
             </div>
         @endif
     </div>
 @endsection
-
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -241,5 +242,4 @@
 
         window.location.href = url.toString();
     }
-
 </script>

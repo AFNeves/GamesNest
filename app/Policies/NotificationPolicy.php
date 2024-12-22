@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Auth;
 class NotificationPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
      * Show the notification page for a given id.
      */
     public function show(User $user): bool

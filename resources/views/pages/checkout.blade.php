@@ -11,7 +11,7 @@
                 <input type="text" name="address_line" class="address-input w-full" placeholder="Address Line" value="{{ old('address_line') }}" required />
 
                 <input type="text" name="district" class="address-input w-full" placeholder="State" value="{{ old('district') }}" required />
-ssss
+
                 <div class="flex justify-between w-full space-x-4">
                     <input type="text" name="city" class="address-input w-full" placeholder="City" value="{{ old('city') }}" required />
 
@@ -28,7 +28,7 @@ ssss
             <div class="space-y-4 whitespace-nowrap w-full mt-6">
                 <span class="text-2xl px-0.5">Payment Information</span>
 
-                <div class="payment-options">
+                <div class="payment-options flex flex-col">
                     <label>
                         <input type="radio" name="payment_method" value="credit_card" required>
                         Credit Card
@@ -36,6 +36,14 @@ ssss
                     <label>
                         <input type="radio" name="payment_method" value="paypal" required>
                         PayPal
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="paypal" required>
+                        Revolut
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="paypal" required>
+                        MBWay
                     </label>
                 </div>
             </div>
@@ -45,6 +53,8 @@ ssss
                     {{ $errors->first() }}
                 </div>
             @endif
+
+            <button type="submit" class="bg-green-500 rounded-lg p-2">Place Order</button>
         </form>
 
         <div class="flex flex-col items-center justify-between px-6 py-12 w-1/3 bg-gray-600 rounded-xl space-y-8">
@@ -62,7 +72,8 @@ ssss
             </div>
             <div class="flex flex-col items-center justify-center w-full space-y-4">
                 <span class="text-3xl">Total: {{ $items->sum('price') }} €</span>
-                <form action="{{ route('checkout.action') }}" method="GET">
+                <form action="{{ route('checkout.action') }}" method="POST">
+                    @csrf
                     <input type="hidden" name="id" value="{{ Auth::id() }}">
                     <button type="submit" class="bg-green-500 rounded-lg p-2">Place Order</button>
                 </form>

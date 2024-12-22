@@ -41,6 +41,13 @@ class LoginController extends Controller
  
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
+
+            if (Auth::user()->is_blocked) {
+                Auth::logout();
+                return back()->withErrors([
+                    'username' => 'Your account is suspended.',
+                ])->onlyInput('username');
+            }
             
             return redirect()->intended();
         }

@@ -30,7 +30,6 @@ class OrderController extends Controller
             'status' => ['required', Rule::enum(Status::class)],
             'order_date' => 'required|date',
             'deliver_date' => 'nullable|date|after:start_date',
-            'billing_address' => ['required', new Address],
             'user_id' => 'required|exists:users,id'
         ]);
     }
@@ -107,8 +106,10 @@ class OrderController extends Controller
     {
         try {
             /* Authorize and Validate Request */
-            $this->authorize('store');
+            $this->authorize('store', Order::class);
             $validated = $this->validateOrder($request);
+
+            dd($validated);
 
             /* Create Order Model */
             $order = new Order();

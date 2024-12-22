@@ -11,7 +11,7 @@
 }
 
 header {
-    @apply flex fixed items-center bg-transparent w-full px-[30px] h-20 cst-tr z-20;
+    @apply flex items-center bg-transparent w-full px-[30px] h-20 cst-tr z-20;
 }
 
 footer {
@@ -21,11 +21,11 @@ footer {
 /* ----- Logo Text ----- */
 
 .header-logo-text {
-    @apply font-audio self-center flex-grow text-3xl;
+    @apply font-audio self-center text-3xl;
 }
 
 .footer-logo-text {
-    @apply font-audio self-center flex-grow text-xl;
+    @apply font-audio self-center text-xl;
 }
 
 /* ----- Header Options ----- */

@@ -20,7 +20,7 @@
     @if ($orders->isEmpty())
         <span class="text-2xl">No orders found</span>
     @else
-        <span class="text-2xl">
+        <span class="text-2xl mb-4">
             Your Order History
         </span>
         <div class="container mx-auto px-4">

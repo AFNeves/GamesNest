@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\Collection;
 class TransactionPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
      * Fetches a transaction.
      */
     public function fetch(User $user, Transaction $transaction): bool

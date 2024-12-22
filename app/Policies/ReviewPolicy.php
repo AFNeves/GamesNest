@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Auth;
 class ReviewPolicy
 {
     /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
      * Shows the first 5 reviews using pagination.
      */
     public function index(User $user): bool

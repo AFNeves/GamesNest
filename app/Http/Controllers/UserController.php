@@ -17,6 +17,20 @@ use App\Models\User;
 class UserController extends Controller
 {
     /**
+     * Shows the admin dashboard page.
+     */
+    public function dashboard(): View|Response
+    {
+        try {
+            $this->authorize('dashboard', Auth::user());
+
+            return view('pages.admin.dashboard');
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        }
+    }
+
+    /**
      * Shows the user management page.
      */
     public function manage(): View|Response
@@ -24,27 +38,12 @@ class UserController extends Controller
         try {
             $this->authorize('manage', Auth::user());
 
-            $users = User::orderBy('id', 'asc')->get();
+            $users = User::where('is_admin', false)
+                ->where('id', '!=', 1)
+                ->orderBy('id', 'asc')
+                ->paginate(10);
 
-            return view('pages.users', ['users' => $users]);
-        } catch (AuthorizationException) {
-            return response()->view('pages.error', ['errorCode' => '403'], 403);
-        }
-    }
-
-    /**
-     * Shows the first 20 users using pagination.
-     */
-    public function index(): JsonResponse|Response
-    {
-        try {
-            $users = User::where('visibility', true)->paginate(20);
-
-            $this->authorize('index', $users);
-
-            return response()->json($users);
-        } catch (ModelNotFoundException) {
-            return response()->view('pages.error', ['errorCode' => '400'], 400);
+            return view('pages.admin.user-panel', compact('users'));
         } catch (AuthorizationException) {
             return response()->view('pages.error', ['errorCode' => '403'], 403);
         }
@@ -60,11 +59,13 @@ class UserController extends Controller
 
             $this->authorize('show', $user);
 
-            return view('pages.user', ['user' => $user]);
+            return view('pages.user.profile', ['user' => $user]);
         } catch (AuthorizationException) {
             return redirect()->route('profile.show', ['id' => Auth::id()]);
         } catch (ValidationException) {
             return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '404'], 404);
         }
     }
 
@@ -151,9 +152,41 @@ class UserController extends Controller
     }
 
     /**
+     * Blocks or unblocks a user.
+     */
+    public function block(int $id): JsonResponse|Response
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            $this->authorize('block', $user);
+
+            $user->is_blocked = !$user->is_blocked;
+
+            $user->save();
+
+            $toast = (object) [
+                'id' => 'toast-' . uniqid(),
+                'class' => 'toast-success',
+                'icon' => 'images/icons/check.svg',
+                'title' => 'Success!',
+                'message' => 'User has been ' . ($user->is_blocked ? 'blocked' : 'unblocked') . '.',
+            ];
+
+            $toastHtml = view('widgets.toast', ['toast' => $toast])->render();
+
+            return response()->json(['success' => true, 'is_blocked' => $user->is_blocked , 'toast' => $toastHtml]);
+        } catch (ModelNotFoundException) {
+            return response()->view('pages.error', ['errorCode' => '400'], 400);
+        } catch (AuthorizationException) {
+            return response()->view('pages.error', ['errorCode' => '403'], 403);
+        }
+    }
+
+    /**
      * Deletes a user.
      */
-    public function destroy(int $id): RedirectResponse|Response
+    public function destroy(int $id): RedirectResponse|JsonResponse|Response
     {
         try {
             $user = User::findOrFail($id);
@@ -162,7 +195,21 @@ class UserController extends Controller
 
             $user->delete();
 
-            return redirect()->route('home');
+            if (Auth::id() == $id) {
+                return redirect()->route('home');
+            }
+
+            $toast = (object) [
+                'id' => 'toast-' . uniqid(),
+                'class' => 'toast-success',
+                'icon' => 'images/icons/check.svg',
+                'title' => 'Success!',
+                'message' => 'User has been deleted.',
+            ];
+
+            $toastHtml = view('widgets.toast', ['toast' => $toast])->render();
+
+            return response()->json(['success' => true, 'deleted' => $id , 'toast' => $toastHtml]);
         } catch (ModelNotFoundException) {
             return response()->view('pages.error', ['errorCode' => '400'], 400);
         } catch (AuthorizationException) {
