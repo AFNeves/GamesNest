@@ -1,37 +1,24 @@
-
 # GamesNest
 
-> A modern digital game store platform built with Laravel, PostgreSQL, and Vite.
-
-![License](https://img.shields.io/github/license/AFNeves/GamesNest)
-![Issues](https://img.shields.io/github/issues/AFNeves/GamesNest)
-
----
+GamesNest is an online marketplace designed for gamers to easily and securely buy digital game keys for platforms like Steam, Epic Games, and Origin. With a clean, user-friendly interface, it simplifies the shopping experience by offering essential features like reviews, personalized recommendations, and secure payments. Tailored for both casual and advanced users, GamesNest prioritizes accessibility and efficiency, making it the go-to platform for hassle-free game purchases.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Setup & Usage Guide](#setup--usage-guide)
-- [Asset Compilation](#asset-compilation)
-- [Contribution](#contribution)
-- [Testing](#testing)
+- [Setup & Usage Guide](#project-setup--usage-guide)
 - [License](#license)
-
----
 
 ## Features
 
-- User authentication & roles
-- Product catalog with categories
-- Shopping cart & order management
-- Reviews & ratings
-- Admin dashboard
+- User Authentication & Roles
+- Product Catalog with Categories
+- Shopping Cart & Order Management
+- Reviews & Ratings
+- Admin Dashboard
 - Notifications
 - RESTful API
 - Responsive UI with Tailwind CSS
-
----
 
 ## Tech Stack
 
@@ -40,26 +27,48 @@
 - **Frontend:** Blade, Tailwind CSS, Vite, JavaScript
 - **Other:** Composer, Docker, Node.js
 
+## Project Setup & Usage Guide
+
+### 1. Prerequisites
+
+In order to run GamesNest locally, ensure you have the following installed:
+
+- **PHP 8.3 or higher**
+- **Composer 2.2 or higher**
+- **Docker**
+- **Node.js 18+ & npm** (required for asset compilation with Vite)
+
+#### Recommended Environment
+
+For the smoothest experience, we recommend using **Ubuntu 24.04 LTS** or newer, which provides up-to-date packages for all dependencies.
+
+#### Installation Instructions
+
+**On Linux:**
+
+Update your package list and install the required tools:
+```bash
+sudo apt update
+sudo apt install git composer php8.3 php8.3-mbstring php8.3-xml php8.3-pgsql php8.3-curl docker.io nodejs npm
+```
+
+**On macOS (using [Homebrew](https://brew.sh/)):**
+```bash
+brew install php@8.3 composer node npm docker
+```
+
+**On Windows (using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)):**
+
+- Install **Ubuntu 24.04** or newer via WSL.
+- Follow the Ubuntu installation steps above inside your WSL terminal.
+
+> **Note:** Older Ubuntu versions may not provide the required PHP packages. Always use the latest LTS release for compatibility.
+
 ---
 
-# Project Setup & Usage Guide
+### 2. Installation
 
-
-## 1. Prerequisites
-
-- **PHP 8.3+**
-- **Composer 2.2+**
-- **Docker** (for PostgreSQL & pgAdmin)
-- **Node.js 18+ & npm** (if using Vite for assets)
-
----
-
-
-## 2. Installation
-
-
-Clone the repository and install dependencies:
-
+Clone the repository and install PHP dependencies:
 
 ```bash
 git clone https://github.com/AFNeves/GamesNest.git
@@ -67,33 +76,18 @@ cd GamesNest
 composer install
 ```
 
-
-Copy the example environment file and generate an application key:
+Copy the example environment file and generate a new application key:
 
 ```bash
-# If .env.example is missing, copy from a teammate or set up manually
 cp .env.example .env
 php artisan key:generate
 ```
 
-
-Update your `.env` file with the following database settings:
-
-```dotenv
-DB_CONNECTION=pgsql
-DB_HOST=postgres
-DB_PORT=5432
-DB_DATABASE=gamesnest
-DB_USERNAME=postgres
-DB_PASSWORD=pg!password
-```
+- Make sure to update your `.env` file with the correct database and mail settings before proceeding.
+- If you are running inside Docker, ensure containers are up before running artisan commands.
 
 ---
-
-
----
-
-## 3. Start the Database
+### 3. Start the Database
 
 From the project root, launch the database containers:
 
@@ -101,33 +95,35 @@ From the project root, launch the database containers:
 docker compose up -d
 ```
 
-Access pgAdmin at [http://localhost:4321](http://localhost:4321):
+The application will connect to the PostgreSQL database automatically using the credentials in your `.env` file.
 
-- **Host:** `postgres`
-- **User:** `postgres`
-- **Password:** `pg!password`
+> **Note:**  
+> For most workflows, you do not need to interact directly with the database. However, if you want to inspect data, troubleshoot issues, or perform manual queries, you can use **pgAdmin** (included in the Docker setup):
+>
+>- Access pgAdmin at [http://localhost:4321](http://localhost:4321)
+>    - **Host:** `postgres`
+>    - **User:** `postgres`
+>    - **Password:** `pg!password`
 
 ---
 
+### 4. Seed the Database
 
-## 4. Seed the Database
-
-Run the database seeder:
+Populate the database with sample data:
 
 ```bash
 php artisan db:seed
 ```
 
-_Default login:_  
-**Email:** `admin@example.com`  
-**Password:** `1234`
+You can now log in using the default administrator credentials below, or refer to the [Wiki PA page](https://github.com/AFNeves/GamesNest/wiki/PA#21-administrator-account) for additional test accounts.
+
+**Default User Login:**
+- **Username:** `AppleTree`
+- **Password:** `1MoreThing...`
 
 ---
 
-
----
-
-## 5. Run the Application
+### 5. Run the Application
 
 Start the Laravel development server:
 
@@ -135,62 +131,10 @@ Start the Laravel development server:
 php artisan serve
 ```
 
-The app will be available at:  
-👉 [http://localhost:8000](http://localhost:8000)
+By default, the application will be accessible at:  
+[http://localhost:8000](http://localhost:8000)
 
-_Stop the server anytime with `Ctrl+C`._
-
----
-
-
----
-
-## 6. Asset Compilation
-
-Install Node dependencies and build assets:
-
-```bash
-npm install
-npm run dev        # For development (hot reload)
-npm run build      # For production build
-```
-
-To watch and build Tailwind CSS only:
-
-```bash
-npm run tailwind
-```
-
----
-
-## 7. Useful Commands
-
-```bash
-docker compose down       # Stop database containers
-php artisan cache:clear   # Clear Laravel cache
-php artisan route:clear   # Clear route cache
-php artisan config:clear  # Clear config cache
-
----
-
-## 8. Testing
-
-Run all tests:
-
-```bash
-php artisan test
-# or
-./vendor/bin/phpunit
-```
-
----
-
-## 9. Contribution
-
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/your-feature`)
-3. Commit your changes
-4. Push to your branch and open a Pull Request
+To stop the server, press `Ctrl+C` in your terminal.
 
 ---
 
