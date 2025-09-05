@@ -7,6 +7,11 @@ GamesNest is an online marketplace designed for gamers to easily and securely bu
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Setup & Usage Guide](#project-setup--usage-guide)
+    - [Prerequisites](#1-prerequisites)
+    - [Installation](#2-installation)
+    - [Start the Database](#3-start-the-database)
+    - [Seed the Database](#4-seed-the-database)
+    - [Run the Application](#5-run-the-application)
 - [License](#license)
 
 ## Features
@@ -73,7 +78,7 @@ Clone the repository and install PHP dependencies:
 ```bash
 git clone https://github.com/AFNeves/GamesNest.git
 cd GamesNest
-composer install
+composer update
 ```
 
 Copy the example environment file and generate a new application key:
